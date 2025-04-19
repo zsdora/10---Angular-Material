@@ -1,28 +1,53 @@
-<div class="login-container">
-    <form class="login-form" [formGroup]="signupForm" (ngSubmit)="onSubmit()">
-        <input formControlName="email" type="email" placeholder="Email" required [ngClass]="{'invalid-input': signupForm.get('email')?.errors}" />
-        <div *ngIf="signupForm.get('email')?.invalid && (signupForm.get('email')?.dirty || signupForm.get('email')?.touched)">
-            <p *ngIf="signupForm.get('email')?.errors && signupForm.get('email')?.errors!['required']">Email is required.</p>
-            <p *ngIf="signupForm.get('email')?.errors && signupForm.get('email')?.errors!['email']">Please enter a valid email.</p>
-        </div>
+<div class="signup-container">
+  <div class="signup-card">
+    <div class="logo-section">
+      <i class="material-icons hotel-icon">hotel</i>
+      <h1>Sign up</h1>
+      <p class="subtitle">Create your InnBound account</p>
+    </div>
+    <form class="signup-form" [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+      <div class="input-group" [ngClass]="{'has-error': signupForm.get('email')?.invalid && (signupForm.get('email')?.dirty || signupForm.get('email')?.touched)}">
+        <i class="material-icons">email</i>
+        <input formControlName="email" type="email" placeholder="Email" required />
+      </div>
+      <div class="error-message" *ngIf="signupForm.get('email')?.invalid && (signupForm.get('email')?.dirty || signupForm.get('email')?.touched)">
+        <span *ngIf="signupForm.get('email')?.errors?.['required']">Email is required.</span>
+        <span *ngIf="signupForm.get('email')?.errors?.['email']">Please enter a valid email.</span>
+      </div>
+
+      <div class="input-group">
+        <i class="material-icons">person</i>
         <input formControlName="name" type="text" placeholder="Name" />
+      </div>
+      <div class="input-group">
+        <i class="material-icons">location_on</i>
         <input formControlName="address" type="text" placeholder="Address" />
+      </div>
+      <div class="input-group">
+        <i class="material-icons">face</i>
         <input formControlName="nickname" type="text" placeholder="Nickname" />
-        <input formControlName="password" type="password" placeholder="Password" required [ngClass]="{'invalid-input': signupForm.get('password')?.errors}" />
-        <div *ngIf="signupForm.get('password')?.invalid && (signupForm.get('password')?.dirty || signupForm.get('password')?.touched)">
-            <p *ngIf="signupForm.get('password')?.errors && signupForm.get('password')?.errors!['required']">Password is required.</p>
-            <p *ngIf="signupForm.get('password')?.errors && signupForm.get('password')?.errors!['minlength']">Password must be at least 6 characters.</p>
-        </div>
-        <input formControlName="confirmPassword" type="password" placeholder="Confirm password" required [ngClass]="{'invalid-input': signupForm.get('confirmPassword')?.errors}" />
-        <div *ngIf="signupForm.get('confirmPassword')?.invalid && (signupForm.get('confirmPassword')?.dirty || signupForm.get('confirmPassword')?.touched)">
-            <p *ngIf="signupForm.get('confirmPassword')?.errors && signupForm.get('confirmPassword')?.errors!['required']">Confirming password is required.</p>
-            <p *ngIf="signupForm.get('confirmPassword')?.errors && signupForm.get('confirmPassword')?.errors!['mustMatch']">Passwords must match.</p>
-        </div>
-        <div class="buttons">
-            <button type="submit">Sign Up</button>
-        </div>
-        <div class="buttons">
-            <button type="reset" (click)="goBack()">Back</button>
-        </div>
+      </div>
+
+      <div class="input-group" [ngClass]="{'has-error': signupForm.get('password')?.invalid && (signupForm.get('password')?.dirty || signupForm.get('password')?.touched)}">
+        <i class="material-icons">lock</i>
+        <input formControlName="password" type="password" placeholder="Password" required />
+      </div>
+      <div class="error-message" *ngIf="signupForm.get('password')?.invalid && (signupForm.get('password')?.dirty || signupForm.get('password')?.touched)">
+        <span *ngIf="signupForm.get('password')?.errors?.['required']">Password is required.</span>
+        <span *ngIf="signupForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters.</span>
+      </div>
+
+      <div class="input-group" [ngClass]="{'has-error': signupForm.get('confirmPassword')?.invalid && (signupForm.get('confirmPassword')?.dirty || signupForm.get('confirmPassword')?.touched)}">
+        <i class="material-icons">lock</i>
+        <input formControlName="confirmPassword" type="password" placeholder="Confirm password" required />
+      </div>
+      <div class="error-message" *ngIf="signupForm.get('confirmPassword')?.invalid && (signupForm.get('confirmPassword')?.dirty || signupForm.get('confirmPassword')?.touched)">
+        <span *ngIf="signupForm.get('confirmPassword')?.errors?.['required']">Confirming password is required.</span>
+        <span *ngIf="signupForm.get('confirmPassword')?.errors?.['mustMatch']">Passwords must match.</span>
+      </div>
+
+      <button type="submit" class="btn-signup">Sign up</button>
+      <button type="reset" class="btn-back" (click)="goBack()">Back</button>
     </form>
+  </div>
 </div>

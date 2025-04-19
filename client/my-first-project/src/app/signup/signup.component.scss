@@ -1,65 +1,157 @@
-.login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+* {
+  box-sizing: border-box;
 }
 
-.login-form {
-    display: flex;
-    flex-direction: column;
-    width: 80%;
-    max-width: 400px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 20px;
-    gap: 10px;
+.signup-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #357ae1, #070e43);
+  font-family: 'Poppins', sans-serif;
+  padding: 20px;
 }
 
-.login-form input {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    outline: none;
+.signup-card {
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  animation: fadeIn 0.5s ease-in;
 }
 
-.login-form .buttons {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
+.logo-section {
+  padding: 30px 20px 20px;
+  text-align: center;
+  background: #f9f9f9;
+  border-bottom: 1px solid #eee;
+
+  .hotel-icon {
+    font-size: 48px;
+    color: #5072A7;
+    margin-bottom: 10px;
+  }
+  h1 {
+    margin: 0;
+    color: #333;
+    font-size: 24px;
+    font-weight: 600;
+  }
+  .subtitle {
+    color: #666;
+    margin: 8px 0 0;
+    font-size: 14px;
+  }
 }
 
-.login-form button {
-    cursor: pointer;
-    border: none;
-    border-radius: 5px;
-    background-color: cornflowerblue;
+.signup-form {
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 0;
+
+  i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa;
+    font-size: 20px;
+    transition: color 0.3s;
+  }
+
+  input {
     width: 100%;
-    color: white;
-    padding: 10px;
-}
+    padding: 12px 12px 12px 45px;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+    background: #f9f9f9;
+    transition: border-color 0.3s, background 0.3s;
+    outline: none;
 
-.login-form button:hover {
-    background-color: rgb(50, 74, 120);
-}
+    &:focus {
+      border-color: #5072A7;
+      background: #fff;
+    }
+  }
 
-.login-form button[type="button"] {
-    background-color: rgb(101, 231, 101);
-}
-
-.login-form button[type="button"]:hover {
-    background-color: rgb(57, 129, 57);
-}
-
-.login-form button[type="reset"] {
-    background-color: rgb(211, 76, 76);
-}
-
-.login-form button[type="reset"]:hover {
-    background-color: rgb(129, 45, 45);
-}
-
-.invalid-input {
+  &.has-error input {
     border-color: #ff0000 !important;
-    border-width: 3px !important;
-    background-color: #ffdddd;
+    background: #ffeded;
+  }
+}
+
+.error-message {
+  color: #d32f2f;
+  font-size: 13px;
+  margin: 2px 0 8px 6px;
+  padding-left: 18px;
+}
+
+.btn-signup {
+  background: #5072A7;
+  color: white;
+  border: none;
+  padding: 13px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  font-size: 16px;
+  transition: background 0.3s;
+
+  &:hover {
+    background: #3A5683;
+  }
+}
+
+.btn-back {
+  background: #d34c4c;
+  color: white;
+  border: none;
+  padding: 13px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  font-size: 16px;
+  transition: background 0.3s;
+
+  &:hover {
+    background: #822d2d;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px);}
+  to   { opacity: 1; transform: translateY(0);}
+}
+
+/* Mobil nézet */
+@media (max-width: 480px) {
+  .signup-card {
+    max-width: 100%;
+  }
+  .logo-section {
+    padding: 20px 10px 12px;
+    .hotel-icon { font-size: 38px; }
+    h1 { font-size: 20px; }
+  }
+  .signup-form {
+    padding: 15px;
+    gap: 8px;
+    .btn-signup, .btn-back { padding: 10px; font-size: 15px; }
+    .input-group input { padding: 10px 10px 10px 38px; }
+  }
 }
