@@ -1,0 +1,242 @@
+import { Router, Request, Response, NextFunction } from 'express';
+import { MainClass } from '../main-class';
+import { PassportStatic } from 'passport';
+import { User } from '../model/User';
+import { Booking } from '../model/Booking';
+import { Hotel } from '../model/Hotel';
+import { Offer } from '../model/Offer';
+import { Room } from '../model/Room';
+
+export const configureRoutes = (passport: PassportStatic, router: Router): Router => {
+
+    // Middleware-ek
+    const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+        if (req.isAuthenticated() && (req.user as any).role === 'admin') {
+            next();
+        } else {
+            res.status(403).send('Admin jogosultság szükséges!');
+        }
+    };
+
+    const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+        if (req.isAuthenticated()) {
+            next();
+        } else {
+            res.status(401).send('Bejelentkezés szükséges!');
+        }
+    };
+
+    // Alap útvonalak (meghagyható)
+    router.get('/', (req: Request, res: Response) => {
+        res.status(200).send('Hotel Foglaló Rendszer API');
+    });
+
+    // ======================
+    // Hitelesítés útvonalak
+    // ======================
+    router.post('/login', (req: Request, res: Response, next: NextFunction) => {
+        passport.authenticate('local', (error: string | null, user: typeof User) => {
+            if (error) return res.status(500).send(error);
+            if (!user) return res.status(400).send('User not found.');
+            req.login(user, (err: string | null) => {
+                if (err) return res.status(500).send('Internal server error.');
+                const userObj = (user as any).toObject();
+                delete (userObj as { password?: string }).password;
+                res.status(200).send(userObj);
+            });
+        })(req, res, next);
+    });
+
+    router.post('/register', async (req: Request, res: Response) => {
+        try {
+            const { email, password, name, address, nickname } = req.body;
+            const user = new User({
+                email,
+                password,
+                name: name || '',
+                address: address || '',
+                nickname: nickname || '',
+                role: 'user' // csak user lehet!
+            });
+            const savedUser = await user.save();
+            const userObj = savedUser.toObject();
+            delete (userObj as { password?: string }).password;
+            res.status(201).send(userObj);
+        } catch (error: any) {
+            if (error.code === 11000) {
+                return res.status(409).send('Ez az email cím már foglalt');
+            }
+            if (error.name === 'ValidationError') {
+                return res.status(400).send('Hiányzó vagy hibás mezők: ' + error.message);
+            }
+            res.status(500).send('Regisztrációs hiba');
+        }
+    });
+
+    router.post('/logout', isAuthenticated, (req: Request, res: Response) => {
+        req.logout((error) => {
+            if (error) return res.status(500).send('Kijelentkezési hiba');
+            res.status(200).send('Sikeres kijelentkezés');
+        });
+    });
+
+    // ======================
+    // Felhasználó kezelés (Admin)
+    // ======================
+    router.get('/users', isAdmin, async (req: Request, res: Response) => {
+        try {
+            const users = await User.find().select('-password');
+            res.status(200).send(users);
+        } catch (error) {
+            res.status(500).send('Felhasználók betöltése sikertelen');
+        }
+    });
+
+    router.post('/users', isAdmin, async (req: Request, res: Response) => {
+        try {
+            const { email, password, role, name, address, nickname } = req.body;
+            if (!email || !password || !role) {
+                return res.status(400).send('Kötelező mezők: email, password, role');
+            }
+            const user = new User({
+                email,
+                password,
+                role,
+                name: name || '',
+                address: address || '',
+                nickname: nickname || ''
+            });
+            const savedUser = await user.save();
+            const userObj = savedUser.toObject();
+            delete (userObj as { password?: string }).password;
+            res.status(201).send(userObj);
+        } catch (error: any) {
+            if (error.code === 11000) {
+                return res.status(409).send('Ez az email cím már foglalt');
+            }
+            if (error.name === 'ValidationError') {
+                return res.status(400).send('Hiányzó vagy hibás mezők: ' + error.message);
+            }
+            res.status(500).send('Hiba a felhasználó létrehozásakor');
+        }
+    });
+
+    router.delete('/users/:id', isAdmin, async (req: Request, res: Response) => {
+        try {
+            const deletedUser = await User.findByIdAndDelete(req.params.id);
+            if (!deletedUser) return res.status(404).send('Felhasználó nem található');
+            res.status(200).send('Felhasználó sikeresen törölve');
+        } catch (error) {
+            res.status(500).send('Törlési hiba');
+        }
+    });
+
+    // ======================
+    // Szálloda útvonalak
+    // ======================
+    router.get('/hotels', async (req: Request, res: Response) => {
+        try {
+            const hotels = await Hotel.find();
+            res.status(200).send(hotels);
+        } catch (error) {
+            res.status(500).send('Hiba a szállodák lekérdezésekor');
+        }
+    });
+
+    router.post('/hotels', isAdmin, async (req: Request, res: Response) => {
+        try {
+            const hotel = new Hotel(req.body);
+            const savedHotel = await hotel.save();
+            res.status(201).send(savedHotel);
+        } catch (error) {
+            res.status(400).send('Érvénytelen adatok');
+        }
+    });
+
+    // ======================
+    // Szoba útvonalak (REST-es szerkezet)
+    // ======================
+    router.get('/hotels/:hotelId/rooms', async (req: Request, res: Response) => {
+        try {
+            const rooms = await Room.find({ hotel_id: req.params.hotelId });
+            res.status(200).send(rooms);
+        } catch (error) {
+            res.status(500).send('Szobák betöltése sikertelen');
+        }
+    });
+
+    router.post('/hotels/:hotelId/rooms', isAdmin, async (req: Request, res: Response) => {
+        try {
+            const room = new Room({
+                ...req.body,
+                hotel_id: req.params.hotelId
+            });
+            const savedRoom = await room.save();
+            // opcionális: hotel-rooms kapcsolat frissítése
+            res.status(201).send(savedRoom);
+        } catch (error) {
+            res.status(400).send('Érvénytelen szobaadatok');
+        }
+    });
+
+    // ======================
+    // Foglalás útvonalak
+    // ======================
+    router.get('/bookings', isAuthenticated, async (req: Request, res: Response) => {
+        try {
+            const filter = (req.user as any).role === 'admin'
+                ? {}
+                : { user_id: (req.user as any)._id };
+            const bookings = await Booking.find(filter)
+                .populate('user_id', 'email name')
+                .populate('hotel_id', 'name city')
+                .populate('room_id', 'price room_type');
+            res.status(200).send(bookings);
+        } catch (error) {
+            res.status(500).send('Foglalások betöltése sikertelen');
+        }
+    });
+
+    router.post('/bookings', isAuthenticated, async (req: Request, res: Response) => {
+        try {
+            const booking = new Booking({
+                ...req.body,
+                user_id: (req.user as any)._id,
+                status: 'aktív'
+            });
+            const savedBooking = await booking.save();
+            res.status(201).send(savedBooking);
+        } catch (error) {
+            res.status(400).send('Érvénytelen foglalási adatok');
+        }
+    });
+
+    // ======================
+    // Ajánlat útvonalak
+    // ======================
+    router.get('/offers', async (req: Request, res: Response) => {
+        try {
+            const offers = await Offer.find({ is_active: true })
+                .populate('hotel_id', 'name amenities');
+            res.status(200).send(offers);
+        } catch (error) {
+            res.status(500).send('Ajánlatok betöltése sikertelen');
+        }
+    });
+
+    router.post('/offers', isAdmin, async (req: Request, res: Response) => {
+        try {
+            const offer = new Offer(req.body);
+            const savedOffer = await offer.save();
+            res.status(201).send(savedOffer);
+        } catch (error) {
+            res.status(400).send('Érvénytelen ajánlati adatok');
+        }
+    });
+
+    // ======================
+    // Egyéb endpointok törölve (getAllUsers, deleteUser, checkAuth)
+    // ======================
+
+    return router;
+};
