@@ -62,6 +62,7 @@ export class SignupComponent implements OnInit {
         }
       });
     } else {
+      this.signupForm.markAllAsTouched();
       console.log('Form is not valid.');
     }
   }

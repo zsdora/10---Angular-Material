@@ -1,0 +1,27 @@
+<div class="hotel-container">
+  <div class="hotel-list-main">
+    <h1>Hotels</h1>
+
+    <div *ngIf="hotels?.length === 0" class="empty-list">
+      <p>No hotels found.</p>
+    </div>
+
+    <div class="hotel-list">
+      <div class="hotel-card" *ngFor="let hotel of hotels">
+        <!--<div class="hotel-image" [ngStyle]="{'background-image': 'url(' + (hotel.photos?.[0] || defaultImage)+ ')'}"></div>-->
+        <div class="hotel-info">
+          <h2>{{ hotel.name }}</h2>
+          <p class="address">{{ hotel.address }}</p>
+          <p class="city">{{ hotel.city }}</p>
+          <div class="amenities" *ngIf="hotel.amenities?.length">
+            <span *ngFor="let amenity of hotel.amenities">{{ amenity }}</span>
+          </div>
+          <div class="hotel-actions">
+            <button class="book-btn" (click)="bookHotel(hotel)">Book</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

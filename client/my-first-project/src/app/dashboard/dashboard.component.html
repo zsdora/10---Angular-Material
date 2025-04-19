@@ -1,0 +1,50 @@
+<div class="dashboard-main">
+  <div class="dashboard-header">
+   <!-- <h1>Welcome, {{ user?.name }}</h1>-->
+    <span *ngIf="user?.role === 'admin'" class="role-badge">Admin</span>
+    <span *ngIf="user?.role === 'user'" class="role-badge">User</span>
+  </div>
+
+  <div class="dashboard-stats" *ngIf="user?.role === 'admin'">
+    <div class="stat-card">
+     <!-- <h2>{{ stats.hotels }}</h2>-->
+      <p>Hotels</p>
+    </div>
+    <div class="stat-card">
+     <!-- <h2>{{ stats.bookings }}</h2>-->
+      <p>Total Bookings</p>
+    </div>
+    <div class="stat-card">
+     <!-- <h2>{{ stats.users }}</h2>-->
+      <p>Users</p>
+    </div>
+  </div>
+
+  <div class="dashboard-stats" *ngIf="user?.role === 'user'">
+    <div class="stat-card">
+     <!-- <h2>{{ stats.myBookings }}</h2>-->
+      <p>My Active Bookings</p>
+    </div>
+    <div class="stat-card">
+     <!-- <h2>{{ stats.nextBooking | date:'mediumDate' }}</h2>-->
+      <p>Next Booking</p>
+    </div>
+  </div>
+
+  <div class="dashboard-actions">
+    <!-- Admin funkciók -->
+    <ng-container *ngIf="user?.role === 'admin'">
+      <button routerLink="/hotels">Manage Hotels</button>
+      <button routerLink="/bookings">View All Bookings</button>
+      <button routerLink="/users">Manage Users</button>
+      <button routerLink="/hotels/add">Add New Hotel</button>
+    </ng-container>
+
+    <!-- User funkciók -->
+    <ng-container *ngIf="user?.role === 'user'">
+      <button routerLink="/hotels">Browse Hotels</button>
+      <button routerLink="/bookings">My Bookings</button>
+      <button routerLink="/profile">Edit Profile</button>
+    </ng-container>
+  </div>
+</div>

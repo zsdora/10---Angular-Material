@@ -1,0 +1,30 @@
+<div class="booking-container">
+  <div class="booking-list-main">
+    <h1 class="center-title">My bookings</h1>
+    <div *ngIf="bookings.length === 0" class="empty-list">
+      <p>You do not have a reservation.</p>
+    </div>
+    <table *ngIf="bookings.length > 0" class="booking-table">
+      <thead>
+        <tr>
+          <th>Hotel</th>
+          <th>Room</th>
+          <th>Check-in</th>
+          <th>Check-out</th>
+          <th>Price</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let booking of bookings">
+          <td>{{ booking.hotelName }}</td>
+          <td>{{ booking.roomType }}</td>
+          <td>{{ booking.startDate | date:'mediumDate' }}</td>
+          <td>{{ booking.endDate | date:'mediumDate' }}</td>
+          <td>{{ booking.price | currency:'EUR' }}</td>
+          <td>{{ booking.status }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
