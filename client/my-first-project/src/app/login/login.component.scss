@@ -1,64 +1,230 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
 .login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #357ae1, #070e43);
+  padding: 20px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.logo-section {
+  padding: 30px 20px 20px;
+  text-align: center;
+  background: #f9f9f9;
+  border-bottom: 1px solid #eee;
+
+  .hotel-icon {
+    font-size: 48px;
+    color: #5072A7;
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    margin: 0;
+    color: #333;
+    font-size: 24px;
+    font-weight: 600;
+  }
+
+  .subtitle {
+    color: #666;
+    margin: 8px 0 0;
+    font-size: 14px;
+  }
 }
 
 .login-form {
-    display: flex;
-    flex-direction: column;
-    width: 80%;
-    max-width: 400px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 20px;
-    gap: 10px;
-}
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 
-.login-form input {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    outline: none;
-}
+  .input-group {
+    position: relative;
 
-.login-form .buttons {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-}
+    i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #aaa;
+      transition: color 0.3s;
+    }
 
-.login-form button {
-    cursor: pointer;
-    border: none;
-    border-radius: 5px;
-    background-color: cornflowerblue;
-    width: 100%;
+    input {
+      width: 83%;
+      padding: 15px 15px 15px 45px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.3s;
+      background: #f9f9f9;
+
+      &:focus {
+        border-color: #5072A7;
+        box-shadow: 0 0 0 2px rgba(80, 114, 167, 0.2);
+        background: white;
+      }
+
+      &:focus + i {
+        color: #5072A7;
+      }
+    }
+  }
+
+  .forgot-password {
+    text-align: right;
+
+    a {
+      color: #5072A7;
+      text-decoration: none;
+      font-size: 14px;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .btn-login {
+    background: #5072A7;
     color: white;
-    padding: 10px;
-}
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+    font-size: 16px;
 
-.login-form button:hover {
-    background-color: rgb(50, 74, 120);
-}
+    &:hover {
+      background: #3A5683;
+    }
+  }
 
-.login-form button[type="button"] {
-    background-color: rgb(101, 231, 101);
-}
+  .btn-signup {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+    font-size: 16px;
 
-.login-form button[type="button"]:hover {
-    background-color: rgb(57, 129, 57);
-}
+    &:hover {
+      background: #3a8a3e;
+    }
+  }
 
-.overlay {
-    position: fixed;
+  .divider {
+    position: relative;
+    text-align: center;
+    margin: 5px 0;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 45%;
+      height: 1px;
+      background: #ddd;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      width: 45%;
+      height: 1px;
+      background: #ddd;
+    }
+
+    span {
+      background: white;
+      padding: 0 10px;
+      color: #888;
+      font-size: 14px;
+      position: relative;
+      z-index: 1;
+    }
+  }
+
+  .error-message {
     display: flex;
-    justify-content: center;
     align-items: center;
-    background-color: #cccccc77;
-    z-index: 1000;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
+    background: #FFEBEE;
+    color: #D32F2F;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+
+    i {
+      margin-right: 8px;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 480px) {
+  .login-card {
+    max-width: 100%;
+  }
+
+  .logo-section {
+    padding: 20px 15px 15px;
+
+    .hotel-icon {
+      font-size: 40px;
+    }
+
+    h1 {
+      font-size: 20px;
+    }
+  }
+
+  .login-form {
+    padding: 20px;
+    gap: 15px;
+
+    .input-group input {
+      padding: 12px 12px 12px 40px;
+    }
+
+    .btn-login, .btn-signup {
+      padding: 12px;
+    }
+  }
 }

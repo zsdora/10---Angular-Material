@@ -26,18 +26,22 @@ const configurePassport = (passport) => {
         }
     }));
     passport.use('local', new passport_local_1.Strategy({
-        usernameField: 'email' // Ez hiányzott
+        usernameField: 'email'
     }, (email, password, done) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log('Hitelesítési kísérlet:', email);
         try {
             const user = yield User_1.User.findOne({ email });
+            console.log('Felhasználó található:', !!user);
             if (!user)
                 return done(null, false, { message: 'Hibás email vagy jelszó' });
             const isValid = yield user.comparePassword(password);
+            console.log('Jelszó egyezik:', isValid);
             if (!isValid)
                 return done(null, false, { message: 'Hibás email vagy jelszó' });
             return done(null, user);
         }
         catch (error) {
+            console.error('Hitelesítési hiba:', error);
             return done(error);
         }
     })));

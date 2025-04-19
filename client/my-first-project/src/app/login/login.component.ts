@@ -15,12 +15,15 @@ export class LoginComponent {
   email: string = '';
   password: string = '';
   errorMessage: string = '';
+  isLoading: boolean = false;
 
   constructor(private router: Router, private authService: AuthService) { }
 
   login() {
     if (this.email && this.password) {
       this.errorMessage = '';
+      this.isLoading = true;
+
       this.authService.login(this.email, this.password).subscribe({
         next: (data) => {
           if (data) {
@@ -28,17 +31,20 @@ export class LoginComponent {
             console.log(data);
             this.router.navigateByUrl('/user-management');
           }
-        }, error: (err) => {
-          console.log(err);
+          this.isLoading = false;
         },
-      })
+        error: (err) => {
+          console.log(err);
+          this.errorMessage = 'Invalid email or password. Please try again.';
+          this.isLoading = false;
+        },
+      });
     } else {
-      this.errorMessage = 'Form is empty.';
+      this.errorMessage = 'Please enter both email and password.';
     }
   }
 
   navigate(to: string) {
     this.router.navigateByUrl(to);
   }
-
 }
