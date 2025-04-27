@@ -26,7 +26,7 @@ mongoose_1.default.connect(dbUrl).then((_) => {
 app.use((0, cors_1.default)({
     origin: 'http://localhost:4200',
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 // bodyParser

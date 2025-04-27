@@ -1,30 +1,54 @@
-<div class="booking-container">
-  <div class="booking-list-main">
-    <h1 class="center-title">My bookings</h1>
-    <div *ngIf="bookings.length === 0" class="empty-list">
-      <p>You do not have a reservation.</p>
-    </div>
-    <table *ngIf="bookings.length > 0" class="booking-table">
-      <thead>
-        <tr>
-          <th>Hotel</th>
-          <th>Room</th>
-          <th>Check-in</th>
-          <th>Check-out</th>
-          <th>Price</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let booking of bookings">
-          <td>{{ booking.hotelName }}</td>
-          <td>{{ booking.roomType }}</td>
-          <td>{{ booking.startDate | date:'mediumDate' }}</td>
-          <td>{{ booking.endDate | date:'mediumDate' }}</td>
-          <td>{{ booking.price | currency:'EUR' }}</td>
-          <td>{{ booking.status }}</td>
-        </tr>
-      </tbody>
+<app-header></app-header>
+<div class="content">
+  <h2>Your Bookings</h2>
+  <div class="bookings-container">
+    <p *ngIf="bookings.length === 0">No bookings found.</p>
+    <table mat-table [dataSource]="bookings" class="mat-elevation-z8" *ngIf="bookings.length > 0">
+      <ng-container matColumnDef="hotelName">
+        <th mat-header-cell *matHeaderCellDef>Hotel</th>
+        <td mat-cell *matCellDef="let booking">{{booking.hotel_id.name}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="dates">
+        <th mat-header-cell *matHeaderCellDef>Dates</th>
+        <td mat-cell *matCellDef="let booking">
+          {{booking.check_in | date}} - {{booking.check_out | date}}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="guests">
+        <th mat-header-cell *matHeaderCellDef>Room Type</th>
+        <td mat-cell *matCellDef="let booking">{{booking.room_id.room_type}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="totalPrice">
+        <th mat-header-cell *matHeaderCellDef>Price</th>
+        <td mat-cell *matCellDef="let booking">{{booking.room_id.price | currency:'HUF'}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let booking">
+          <mat-chip [color]="booking.status === 'aktív' ? 'primary' : 'warn'">
+            {{booking.status}}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let booking">
+          <button mat-button
+                  color="warn"
+                  (click)="cancelBooking(booking._id)"
+                  [disabled]="booking.status !== 'aktív'">
+            Cancel
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="['hotelName', 'dates', 'guests', 'totalPrice', 'status', 'actions']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['hotelName', 'dates', 'guests', 'totalPrice', 'status', 'actions'];"></tr>
     </table>
   </div>
 </div>

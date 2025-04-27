@@ -89,7 +89,7 @@ const configureRoutes = (passport, router) => {
     // ======================
     // Felhasználó kezelés (Admin)
     // ======================
-    router.get('/app/users', isAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    router.get('/users', isAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const users = yield User_1.User.find().select('-password');
             res.status(200).send(users);
@@ -98,7 +98,7 @@ const configureRoutes = (passport, router) => {
             res.status(500).send('Felhasználók betöltése sikertelen');
         }
     }));
-    router.get('/app/users/current', isAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    router.get('/users/current', isAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const userId = req.user._id;
             const user = yield User_1.User.findById(userId).select('-password');
@@ -112,7 +112,7 @@ const configureRoutes = (passport, router) => {
             res.status(500).json({ message: 'Internal server error' });
         }
     }));
-    router.post('/app/users', isAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    router.post('/users', isAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const { email, password, role, name, address, nickname } = req.body;
             if (!email || !password || !role) {
@@ -213,19 +213,7 @@ const configureRoutes = (passport, router) => {
             res.status(500).json({ message: 'Error fetching hotels' });
         }
     }));
-    /*
-    router.get('/app/hotels', async (req: Request, res: Response) => {
-        console.log('GET /hotels endpoint hit');
-        try {
-            const hotels = await Hotel.find().select('-__v');
-            res.json(hotels);
-        } catch (error) {
-            console.error('Error fetching hotels:', error);
-            res.status(500).json({ message: 'Error fetching hotels' });
-        }
-    });
-*/
-    router.post('/app/hotels', isAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    router.post('/hotels', isAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const hotel = new Hotel_1.Hotel(req.body);
             const savedHotel = yield hotel.save();
@@ -261,29 +249,61 @@ const configureRoutes = (passport, router) => {
     // ======================
     // Foglalás útvonalak
     // ======================
+    console.log('Configuring routes...');
     router.get('/bookings', isAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log('GET /bookings route hit');
         try {
-            const filter = req.user.role === 'admin'
-                ? {}
-                : { user_id: req.user._id };
-            const bookings = yield Booking_1.Booking.find(filter)
-                .populate('user_id', 'email name')
+            const bookings = yield Booking_1.Booking.find({ user_id: req.user._id })
                 .populate('hotel_id', 'name city')
                 .populate('room_id', 'price room_type');
-            res.status(200).send(bookings);
+            console.log('Found bookings for user:', bookings);
+            res.status(200).json(bookings);
         }
         catch (error) {
-            res.status(500).send('Foglalások betöltése sikertelen');
+            console.error('Error in /bookings route:', error);
+            res.status(500).json({ message: 'Failed to load bookings' });
         }
     }));
     router.post('/bookings', isAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const booking = new Booking_1.Booking(Object.assign(Object.assign({}, req.body), { user_id: req.user._id, status: 'aktív' }));
+            // Validate required fields
+            const { hotel_id, room_id, check_in, check_out } = req.body;
+            if (!hotel_id || !room_id || !check_in || !check_out) {
+                return res.status(400).json({
+                    message: 'Missing required fields'
+                });
+            }
+            const booking = new Booking_1.Booking(Object.assign(Object.assign({}, req.body), { user_id: req.user._id, status: 'confirmed' }));
             const savedBooking = yield booking.save();
-            res.status(201).send(savedBooking);
+            res.status(201).json(savedBooking);
         }
         catch (error) {
-            res.status(400).send('Érvénytelen foglalási adatok');
+            console.error('Error creating booking:', error);
+            res.status(400).json({
+                message: 'Invalid booking data',
+                error: error.message
+            });
+        }
+    }));
+    router.patch('/bookings/:id/cancel', isAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const booking = yield Booking_1.Booking.findOne({
+                _id: req.params.id,
+                user_id: req.user._id
+            });
+            if (!booking) {
+                return res.status(404).json({ message: 'Booking not found' });
+            }
+            if (booking.status === 'cancelled') {
+                return res.status(400).json({ message: 'Booking is already cancelled' });
+            }
+            booking.status = 'cancelled';
+            yield booking.save();
+            res.status(200).json(booking);
+        }
+        catch (error) {
+            console.error('Error cancelling booking:', error);
+            res.status(500).json({ message: 'Failed to cancel booking' });
         }
     }));
     // ======================

@@ -2,61 +2,88 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HeaderComponent } from '../shared/components/header/header/header.component';
+import { MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatChipsModule } from '@angular/material/chips';
+import { BookingService } from '../shared/services/booking.service';
 
 interface Booking {
-  id: string;
-  hotelName: string;
-  checkIn: Date;
-  checkOut: Date;
-  guests: number;
-  totalPrice: number;
-  status: 'confirmed' | 'pending' | 'cancelled';
+  _id: string;
+  user_id: string;
+  hotel_id: {
+    _id: string;
+    name: string;
+    city: string;
+  };
+  room_id: {
+    _id: string;
+    room_type: number;
+    price: number;
+  };
+  check_in: Date;
+  check_out: Date;
+  status: string;
 }
 
 @Component({
   selector: 'app-booking-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent],
-  template: `
-    <app-header></app-header>
-    <div class="content">
-      <h2>Your Bookings</h2>
-      <div class="bookings-container">
-        <p *ngIf="bookings.length === 0">No bookings found.</p>
-        <!-- Add booking list content here -->
-      </div>
-    </div>
-  `,
-  styles: [`
-    .content {
-      padding-top: 64px;
-      margin: 20px;
-    }
-    .bookings-container {
-      padding: 20px;
-    }
-  `]
+  imports: [
+    CommonModule,
+    RouterModule,
+    HeaderComponent,
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule,
+    MatChipsModule,
+  ],
+  templateUrl: './booking-list.component.html',
+  styleUrls: ['./booking-list.component.scss'],
 })
 export class BookingListComponent implements OnInit {
   bookings: Booking[] = [];
 
+  constructor(private bookingService: BookingService) {}
+
   ngOnInit(): void {
-    // TODO: Replace with API call
-    this.bookings = [
-      {
-        id: '1',
-        hotelName: 'Ocean View Hotel',
-        checkIn: new Date('2024-05-01'),
-        checkOut: new Date('2024-05-05'),
-        guests: 2,
-        totalPrice: 800,
-        status: 'confirmed'
-      }
-    ];
+    this.loadBookings();
   }
 
-  cancelBooking(bookingId: string) {
-    // TODO: Implement cancellation logic
-    console.log(`Cancelling booking: ${bookingId}`);
+  loadBookings(): void {
+    console.log('Attempting to load bookings...'); // Add debug log
+    this.bookingService.getUserBookings().subscribe({
+      next: (bookings) => {
+        console.log('Received bookings:', bookings);
+        this.bookings = bookings;
+      },
+      error: (error) => {
+        if (error.status === 401) {
+          console.error('Not authenticated - please log in');
+          // Redirect to login page or show login dialog
+        } else {
+          console.error('Error details:', {
+            status: error.status,
+            message: error.message,
+            url: error.url,
+            error: error.error
+          });
+        }
+      }
+    });
+  }
+
+  cancelBooking(bookingId: string): void {
+    if (confirm('Are you sure you want to cancel this booking?')) {
+      this.bookingService.cancelBooking(bookingId).subscribe({
+        next: () => {
+          console.log('Booking cancelled successfully');
+          this.loadBookings(); // Reload the list after cancellation
+        },
+        error: (error) => {
+          console.error('Error cancelling booking:', error);
+        }
+      });
+    }
   }
 }

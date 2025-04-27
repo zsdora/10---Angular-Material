@@ -86,7 +86,7 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
     // ======================
     // Felhasználó kezelés (Admin)
     // ======================
-    router.get('/app/users', isAdmin, async (req: Request, res: Response) => {
+    router.get('/users', isAdmin, async (req: Request, res: Response) => {
         try {
             const users = await User.find().select('-password');
             res.status(200).send(users);
@@ -95,7 +95,7 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
         }
     });
     
-    router.get('/app/users/current', isAuthenticated, async (req: Request, res: Response) => {
+    router.get('/users/current', isAuthenticated, async (req: Request, res: Response) => {
         try {
             const userId = (req.user as any)._id;
             const user = await User.findById(userId).select('-password');
@@ -109,7 +109,7 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
         }
     });
 
-    router.post('/app/users', isAdmin, async (req: Request, res: Response) => {
+    router.post('/users', isAdmin, async (req: Request, res: Response) => {
         try {
             const { email, password, role, name, address, nickname } = req.body;
             if (!email || !password || !role) {
@@ -221,19 +221,8 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
             res.status(500).json({ message: 'Error fetching hotels' });
         }
     });
-    /*
-    router.get('/app/hotels', async (req: Request, res: Response) => {
-        console.log('GET /hotels endpoint hit');
-        try {
-            const hotels = await Hotel.find().select('-__v');
-            res.json(hotels);
-        } catch (error) {
-            console.error('Error fetching hotels:', error);
-            res.status(500).json({ message: 'Error fetching hotels' });
-        }
-    });
-*/
-    router.post('/app/hotels', isAdmin, async (req: Request, res: Response) => {
+
+    router.post('/hotels', isAdmin, async (req: Request, res: Response) => {
         try {
             const hotel = new Hotel(req.body);
             const savedHotel = await hotel.save();
@@ -272,32 +261,71 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
     // ======================
     // Foglalás útvonalak
     // ======================
+    console.log('Configuring routes...'); 
     router.get('/bookings', isAuthenticated, async (req: Request, res: Response) => {
+        console.log('GET /bookings route hit');
         try {
-            const filter = (req.user as any).role === 'admin'
-                ? {}
-                : { user_id: (req.user as any)._id };
-            const bookings = await Booking.find(filter)
-                .populate('user_id', 'email name')
+            const bookings = await Booking.find({ user_id: (req.user as any)._id })
                 .populate('hotel_id', 'name city')
                 .populate('room_id', 'price room_type');
-            res.status(200).send(bookings);
-        } catch (error) {
-            res.status(500).send('Foglalások betöltése sikertelen');
+            
+            console.log('Found bookings for user:', bookings);
+            res.status(200).json(bookings);
+        } catch (error: any) {
+            console.error('Error in /bookings route:', error);
+            res.status(500).json({ message: 'Failed to load bookings' });
         }
     });
 
     router.post('/bookings', isAuthenticated, async (req: Request, res: Response) => {
         try {
+            // Validate required fields
+            const { hotel_id, room_id, check_in, check_out } = req.body;
+            if (!hotel_id || !room_id || !check_in || !check_out) {
+                return res.status(400).json({ 
+                    message: 'Missing required fields' 
+                });
+            }
+    
             const booking = new Booking({
                 ...req.body,
                 user_id: (req.user as any)._id,
-                status: 'aktív'
+                status: 'confirmed'
             });
+    
             const savedBooking = await booking.save();
-            res.status(201).send(savedBooking);
+            res.status(201).json(savedBooking);
+        } catch (error: any) {
+            console.error('Error creating booking:', error);
+            res.status(400).json({ 
+                message: 'Invalid booking data',
+                error: error.message 
+            });
+        }
+    });
+
+    router.patch('/bookings/:id/cancel', isAuthenticated, async (req: Request, res: Response) => {
+        try {
+            const booking = await Booking.findOne({ 
+                _id: req.params.id,
+                user_id: (req.user as any)._id 
+            });
+    
+            if (!booking) {
+                return res.status(404).json({ message: 'Booking not found' });
+            }
+    
+            if (booking.status === 'cancelled') {
+                return res.status(400).json({ message: 'Booking is already cancelled' });
+            }
+    
+            booking.status = 'cancelled';
+            await booking.save();
+    
+            res.status(200).json(booking);
         } catch (error) {
-            res.status(400).send('Érvénytelen foglalási adatok');
+            console.error('Error cancelling booking:', error);
+            res.status(500).json({ message: 'Failed to cancel booking' });
         }
     });
 

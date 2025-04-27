@@ -6,6 +6,24 @@ html, body {
   font-family: 'Poppins', sans-serif;
 }
 
+.content {
+  padding-top: 64px;
+  margin: 20px;
+}
+.bookings-container {
+  padding: 20px;
+}
+table {
+  width: 100%;
+}
+.mat-mdc-row:hover {
+  background: whitesmoke;
+}
+.mat-mdc-header-cell {
+  font-weight: bold;
+  color: rgba(0, 0, 0, 0.87);
+}
+
 .booking-container {
   min-height: 100vh;
   display: flex;
