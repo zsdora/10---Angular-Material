@@ -50,26 +50,30 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
     router.post('/register', async (req: Request, res: Response) => {
         try {
             const { email, password, name, address, nickname } = req.body;
+            
+            // Check if user already exists
+            const existingUser = await User.findOne({ email: email.toLowerCase() });
+            if (existingUser) {
+                return res.status(409).json({ message: 'Email already registered' });
+            }
+    
             const user = new User({
-                email,
+                email: email.toLowerCase(),
                 password,
                 name: name || '',
                 address: address || '',
                 nickname: nickname || '',
-                role: 'user' // csak user lehet!
+                role: 'user'
             });
+    
             const savedUser = await user.save();
             const userObj = savedUser.toObject();
-            delete (userObj as { password?: string }).password;
-            res.status(201).send(userObj);
+            delete (userObj as any).password;
+    
+            return res.status(201).json(userObj);
         } catch (error: any) {
-            if (error.code === 11000) {
-                return res.status(409).send('Ez az email cím már foglalt');
-            }
-            if (error.name === 'ValidationError') {
-                return res.status(400).send('Hiányzó vagy hibás mezők: ' + error.message);
-            }
-            res.status(500).send('Regisztrációs hiba');
+            console.error('Registration error:', error);
+            return res.status(500).json({ message: 'Registration failed' });
         }
     });
 

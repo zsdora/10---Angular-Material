@@ -22,7 +22,7 @@ mongoose_1.default.connect(dbUrl).then((_) => {
     console.log(error);
     return;
 });
-const whitelist = ['*', 'http://localhost:4200'];
+const whitelist = ['http://localhost:4200'];
 const corsOptions = {
     origin: (origin, callback) => {
         if (whitelist.indexOf(origin) !== -1 || whitelist.includes('*')) {
@@ -32,18 +32,26 @@ const corsOptions = {
             callback(new Error('Not allowed by CORS.'));
         }
     },
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 };
 app.use((0, cors_1.default)(corsOptions));
 // bodyParser
 app.use(body_parser_1.default.urlencoded({ extended: true }));
+app.use(body_parser_1.default.json());
 // cookieParser
 app.use((0, cookie_parser_1.default)());
 // session
 const sessionOptions = {
     secret: 'testsecret',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    cookie: {
+        secure: false, // set to true if using https
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24 // 24 hours
+    }
 };
 app.use((0, express_session_1.default)(sessionOptions));
 app.use(passport_1.default.initialize());

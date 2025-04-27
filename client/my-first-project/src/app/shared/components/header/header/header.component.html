@@ -1,0 +1,28 @@
+<mat-toolbar>
+  <span>InnBound</span>
+  <span class="spacer"></span>
+
+  <button mat-button routerLink="/dashboard" *ngIf="currentRoute !== '/dashboard'">
+    <mat-icon>dashboard</mat-icon>
+    Dashboard
+  </button>
+
+  <button mat-button routerLink="/hotels" *ngIf="currentRoute !== '/hotels'">
+    <mat-icon>hotel</mat-icon>
+    Hotels
+  </button>
+
+  <button mat-button routerLink="/bookings" *ngIf="currentRoute !== '/bookings'">
+    <mat-icon>book</mat-icon>
+    Bookings
+  </button>
+
+  <button mat-button routerLink="/profile" *ngIf="currentRoute !== '/profile'">
+    <mat-icon>person</mat-icon>
+    Profile
+  </button>
+
+  <button mat-icon-button (click)="logout()">
+    <mat-icon>exit_to_app</mat-icon>
+  </button>
+</mat-toolbar>

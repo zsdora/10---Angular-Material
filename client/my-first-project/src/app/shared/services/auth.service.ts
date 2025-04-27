@@ -1,42 +1,62 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { User } from '../model/User';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 
-  // login
   login(email: string, password: string) {
-    return this.http.post('/app/login', { email, password }, {
-        withCredentials: true
-    });
+    return this.http.post(`${this.apiUrl}/app/login`,
+      { email, password },
+      {
+        withCredentials: true,
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json'
+        })
+      }
+    );
   }
 
   register(user: User) {
-    // HTTP POST request
-    const body = new URLSearchParams();
-    body.set('email', user.email);
-    body.set('name', user.name);
-    body.set('address', user.address);
-    body.set('nickname', user.nickname);
-    body.set('password', user.password);
-
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/x-www-form-urlencoded'
-    });
-
-    return this.http.post('http://localhost:5000/app/register', body, {headers: headers});
+    return this.http.post(`${this.apiUrl}/app/register`,
+      user,
+      {
+        withCredentials: true,
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json'
+        })
+      }
+    );
   }
 
   logout() {
-    return this.http.post('http://localhost:5000/app/logout', {}, {withCredentials: true, responseType: 'text'});
+    return this.http.post(`${this.apiUrl}/app/logout`, {},
+      {
+        withCredentials: true,
+        responseType: 'text'
+      }
+    );
   }
 
   checkAuth() {
-    return this.http.get<boolean>('http://localhost:5000/app/checkAuth', {withCredentials: true});
+    return this.http.get<boolean>(`${this.apiUrl}/app/checkAuth`,
+      {
+        withCredentials: true
+      }
+    );
   }
+
+  getUsers() {
+    return this.http.get<User[]>(`${this.apiUrl}/app/users`, {
+      withCredentials: true
+    });
+  }
+
 }

@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { HeaderComponent } from '../shared/components/header/header/header.component';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
 
@@ -13,9 +16,25 @@ interface Booking {
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [MatTabsModule, ReactiveFormsModule],
-  templateUrl: './user-profile.component.html',
-  styleUrls: ['./user-profile.component.scss']
+  imports: [MatTabsModule, ReactiveFormsModule, CommonModule, RouterModule, HeaderComponent],
+  template: `
+    <app-header></app-header>
+    <div class="content">
+      <h2>User Profile</h2>
+      <div class="profile-container">
+        <!-- Add profile content here -->
+      </div>
+    </div>
+  `,
+  styles: [`
+    .content {
+      padding-top: 64px;
+      margin: 20px;
+    }
+    .profile-container {
+      padding: 20px;
+    }
+  `]
 })
 export class UserProfileComponent implements OnInit {
   // Formok

@@ -58,27 +58,27 @@ const configureRoutes = (passport, router) => {
     router.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const { email, password, name, address, nickname } = req.body;
+            // Check if user already exists
+            const existingUser = yield User_1.User.findOne({ email: email.toLowerCase() });
+            if (existingUser) {
+                return res.status(409).json({ message: 'Email already registered' });
+            }
             const user = new User_1.User({
-                email,
+                email: email.toLowerCase(),
                 password,
                 name: name || '',
                 address: address || '',
                 nickname: nickname || '',
-                role: 'user' // csak user lehet!
+                role: 'user'
             });
             const savedUser = yield user.save();
             const userObj = savedUser.toObject();
             delete userObj.password;
-            res.status(201).send(userObj);
+            return res.status(201).json(userObj);
         }
         catch (error) {
-            if (error.code === 11000) {
-                return res.status(409).send('Ez az email cím már foglalt');
-            }
-            if (error.name === 'ValidationError') {
-                return res.status(400).send('Hiányzó vagy hibás mezők: ' + error.message);
-            }
-            res.status(500).send('Regisztrációs hiba');
+            console.error('Registration error:', error);
+            return res.status(500).json({ message: 'Registration failed' });
         }
     }));
     router.post('/logout', isAuthenticated, (req, res) => {

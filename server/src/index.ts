@@ -22,7 +22,7 @@ mongoose.connect(dbUrl).then((_) => {
     return;
 });
 
-const whitelist = ['*', 'http://localhost:4200']
+const whitelist = ['http://localhost:4200']
 const corsOptions = {
     origin: (origin: string | undefined, callback: (err: Error | null, allowed?: boolean) => void) => {
         if (whitelist.indexOf(origin!) !== -1 || whitelist.includes('*')) {
@@ -31,14 +31,16 @@ const corsOptions = {
             callback(new Error('Not allowed by CORS.'));
         }
     },
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 app.use(cors(corsOptions));
 
 // bodyParser
 app.use(bodyParser.urlencoded({extended: true}));
-
+app.use(bodyParser.json());
 // cookieParser
 app.use(cookieParser());
 
@@ -46,7 +48,12 @@ app.use(cookieParser());
 const sessionOptions: expressSession.SessionOptions = {
     secret: 'testsecret',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    cookie: {
+        secure: false, // set to true if using https
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24 // 24 hours
+    }
 };
 app.use(expressSession(sessionOptions));
 

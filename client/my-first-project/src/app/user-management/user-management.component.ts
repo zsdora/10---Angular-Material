@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { User } from '../shared/model/User';
 import { UserService } from '../shared/services/user.service';
 import { AuthService } from '../shared/services/auth.service';
@@ -18,7 +18,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
   styleUrl: './user-management.component.scss'
 })
 export class UserManagementComponent {
-  users!: User[];
+  users: User[] = [];
   columns = ['email', 'name', 'address', 'nickname', 'delete'];
 
   constructor(
@@ -30,12 +30,17 @@ export class UserManagementComponent {
   ) { }
 
   ngOnInit() {
-    this.userService.getAll().subscribe({
-      next: (data) => {
-        this.users = data;
-        console.log(this.users);
-      }, error: (err) => {
-        console.log(err);
+    this.authService.getUsers().subscribe({
+      next: (users: User[]) => {
+        this.users = users;
+        console.log('Users loaded:', users);
+      },
+      error: (error) => {
+        console.error('Error fetching users:', error);
+        this.openSnackBar('Failed to load users. Please try again.', 3000);
+        if (error.status === 401) {
+          this.router.navigateByUrl('/login');
+        }
       }
     });
   }

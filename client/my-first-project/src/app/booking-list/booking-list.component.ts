@@ -1,47 +1,62 @@
-import { Component, OnInit, OnDestroy, Renderer2 } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { HeaderComponent } from '../shared/components/header/header/header.component';
+
+interface Booking {
+  id: string;
+  hotelName: string;
+  checkIn: Date;
+  checkOut: Date;
+  guests: number;
+  totalPrice: number;
+  status: 'confirmed' | 'pending' | 'cancelled';
+}
 
 @Component({
   selector: 'app-booking-list',
   standalone: true,
-  imports: [CommonModule],
-  templateUrl: './booking-list.component.html',
-  styleUrls: ['./booking-list.component.scss']
+  imports: [CommonModule, RouterModule, HeaderComponent],
+  template: `
+    <app-header></app-header>
+    <div class="content">
+      <h2>Your Bookings</h2>
+      <div class="bookings-container">
+        <p *ngIf="bookings.length === 0">No bookings found.</p>
+        <!-- Add booking list content here -->
+      </div>
+    </div>
+  `,
+  styles: [`
+    .content {
+      padding-top: 64px;
+      margin: 20px;
+    }
+    .bookings-container {
+      padding: 20px;
+    }
+  `]
 })
-export class BookingListComponent implements OnInit, OnDestroy {
-  bookings: any[] = [];
-
-  constructor(private renderer: Renderer2) {}
+export class BookingListComponent implements OnInit {
+  bookings: Booking[] = [];
 
   ngOnInit(): void {
-    // Átmenetes háttér beállítása csak ezen az oldalon
-    this.renderer.setStyle(document.body, 'background', 'linear-gradient(135deg, #357ae1, #070e43)');
-    this.renderer.setStyle(document.body, 'minHeight', '100vh');
-
-    // Demo adatok
+    // TODO: Replace with API call
     this.bookings = [
       {
+        id: '1',
         hotelName: 'Ocean View Hotel',
-        roomType: 'Deluxe',
-        startDate: new Date(2025, 5, 12),
-        endDate: new Date(2025, 5, 15),
-        price: 320,
-        status: 'Confirmed'
-      },
-      {
-        hotelName: 'Mountain Resort',
-        roomType: 'Standard',
-        startDate: new Date(2025, 6, 2),
-        endDate: new Date(2025, 6, 6),
-        price: 210,
-        status: 'Cancelled'
+        checkIn: new Date('2024-05-01'),
+        checkOut: new Date('2024-05-05'),
+        guests: 2,
+        totalPrice: 800,
+        status: 'confirmed'
       }
     ];
   }
 
-  ngOnDestroy(): void {
-    // Navigáláskor visszaállítjuk az alap hátteret
-    this.renderer.removeStyle(document.body, 'background');
-    this.renderer.removeStyle(document.body, 'minHeight');
+  cancelBooking(bookingId: string) {
+    // TODO: Implement cancellation logic
+    console.log(`Cancelling booking: ${bookingId}`);
   }
 }
