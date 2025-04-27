@@ -3,103 +3,55 @@
   <div class="profile-card">
     <div class="profile-header">
       <i class="material-icons profile-icon">account_circle</i>
-      <h1>{{ user?.name }} profilja</h1>
+      <h1>{{ user?.name || 'User' }} Profile</h1>
     </div>
 
     <mat-tab-group animationDuration="0ms">
-      <!-- Személyes adatok -->
-      <mat-tab label="Személyes adatok">
+      <mat-tab label="Personal Information">
         <form [formGroup]="personalForm" class="profile-form" (ngSubmit)="updatePersonal()">
-          <div class="input-group">
-            <label>Teljes név</label>
-            <input formControlName="name" type="text">
-          </div>
-
           <div class="input-group">
             <label>Email</label>
             <input formControlName="email" type="email" readonly>
           </div>
 
           <div class="input-group">
-            <label>Telefonszám</label>
-            <input formControlName="phone" type="tel">
+            <label>Name</label>
+            <input formControlName="name" type="text">
           </div>
 
           <div class="input-group">
-            <label>Lakcím</label>
+            <label>Nickname</label>
+            <input formControlName="nickname" type="text">
+          </div>
+
+          <div class="input-group">
+            <label>Address</label>
             <input formControlName="address" type="text">
           </div>
 
-          <button type="submit" class="btn-save">Mentés</button>
+          <button type="submit" class="btn-save">Save Changes</button>
         </form>
       </mat-tab>
 
-      <!-- Jelszóváltoztatás -->
-      <mat-tab label="Jelszó">
+      <mat-tab label="Change Password">
         <form [formGroup]="passwordForm" class="profile-form" (ngSubmit)="changePassword()">
           <div class="input-group">
-            <label>Aktuális jelszó</label>
+            <label>Current Password</label>
             <input formControlName="currentPassword" type="password">
           </div>
 
           <div class="input-group">
-            <label>Új jelszó</label>
+            <label>New Password</label>
             <input formControlName="newPassword" type="password">
           </div>
 
           <div class="input-group">
-            <label>Jelszó megerősítése</label>
+            <label>Confirm New Password</label>
             <input formControlName="confirmPassword" type="password">
           </div>
 
-          <button type="submit" class="btn-save">Jelszó módosítása</button>
+          <button type="submit" class="btn-save">Change Password</button>
         </form>
-      </mat-tab>
-
-      <!-- Értesítések -->
-      <mat-tab label="Értesítések">
-        <form [formGroup]="notificationForm" class="profile-form" (ngSubmit)="updateNotifications()">
-          <div class="checkbox-group">
-            <mat-checkbox formControlName="emailConfirmation">
-              Email értesítés foglalási megerősítésről
-            </mat-checkbox>
-          </div>
-
-          <div class="checkbox-group">
-            <mat-checkbox formControlName="emailCancellation">
-              Email értesítés lemondásról
-            </mat-checkbox>
-          </div>
-
-          <button type="submit" class="btn-save">Beállítások mentése</button>
-        </form>
-      </mat-tab>
-
-      <!-- Foglalási előzmények -->
-      <mat-tab label="Foglalások">
-        <div class="booking-history">
-          <div *ngIf="bookings.length === 0" class="empty-list">
-            Nincsenek foglalásaid.
-          </div>
-
-          <div *ngFor="let booking of bookings" class="booking-item">
-            <div class="booking-header">
-              <span class="hotel-name">{{ booking.hotelName }}</span>
-              <span [class]="'status-' + booking.status">{{ booking.status  }}</span><!--| statusLabel -->
-            </div>
-
-            <div class="booking-details">
-              <div>
-                <i class="material-icons">calendar_today</i>
-                {{ booking.startDate  }} - {{ booking.endDate  }}<!--| date:'yyyy.MM.dd' | date:'yyyy.MM.dd'-->
-              </div>
-              <div>
-                <i class="material-icons">euro_symbol</i>
-                {{ booking.price  }}<!--| currency:'EUR' -->
-              </div>
-            </div>
-          </div>
-        </div>
       </mat-tab>
     </mat-tab-group>
   </div>

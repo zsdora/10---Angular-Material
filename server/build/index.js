@@ -22,21 +22,13 @@ mongoose_1.default.connect(dbUrl).then((_) => {
     console.log(error);
     return;
 });
-const whitelist = ['http://localhost:4200'];
-const corsOptions = {
-    origin: (origin, callback) => {
-        if (whitelist.indexOf(origin) !== -1 || whitelist.includes('*')) {
-            callback(null, true);
-        }
-        else {
-            callback(new Error('Not allowed by CORS.'));
-        }
-    },
+// Updated CORS configuration
+app.use((0, cors_1.default)({
+    origin: 'http://localhost:4200',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
-};
-app.use((0, cors_1.default)(corsOptions));
+}));
 // bodyParser
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use(body_parser_1.default.json());
@@ -54,10 +46,13 @@ const sessionOptions = {
     }
 };
 app.use((0, express_session_1.default)(sessionOptions));
+// Passport initialization
 app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());
 (0, passport_2.configurePassport)(passport_1.default);
+// Routes configuration
 app.use('/app', (0, routes_1.configureRoutes)(passport_1.default, express_1.default.Router()));
+// Start server
 app.listen(port, () => {
     console.log('Server is listening on port ' + port.toString());
 });

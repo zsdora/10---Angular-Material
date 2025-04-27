@@ -27,11 +27,9 @@ const configureRoutes = (passport, router) => {
     };
     const isAuthenticated = (req, res, next) => {
         if (req.isAuthenticated()) {
-            next();
+            return next();
         }
-        else {
-            res.status(401).send('Bejelentkezés szükséges!');
-        }
+        res.status(401).json({ message: 'Unauthorized' });
     };
     // Alap útvonalak (meghagyható)
     router.get('/', (req, res) => {
@@ -91,7 +89,7 @@ const configureRoutes = (passport, router) => {
     // ======================
     // Felhasználó kezelés (Admin)
     // ======================
-    router.get('/users', isAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    router.get('/app/users', isAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const users = yield User_1.User.find().select('-password');
             res.status(200).send(users);
@@ -100,7 +98,21 @@ const configureRoutes = (passport, router) => {
             res.status(500).send('Felhasználók betöltése sikertelen');
         }
     }));
-    router.post('/users', isAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    router.get('/app/users/current', isAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const userId = req.user._id;
+            const user = yield User_1.User.findById(userId).select('-password');
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            res.json(user);
+        }
+        catch (error) {
+            console.error('Error fetching current user:', error);
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    }));
+    router.post('/app/users', isAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const { email, password, role, name, address, nickname } = req.body;
             if (!email || !password || !role) {
@@ -129,6 +141,37 @@ const configureRoutes = (passport, router) => {
             res.status(500).send('Hiba a felhasználó létrehozásakor');
         }
     }));
+    router.get('/users/profile', isAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            // Get the user ID from the authenticated request
+            const userId = req.user._id;
+            // Find the user and exclude password field
+            const user = yield User_1.User.findById(userId).select('-password');
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            res.json(user);
+        }
+        catch (error) {
+            console.error('Error fetching user profile:', error);
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    }));
+    router.put('/users/profile', isAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const userId = req.user._id;
+            const { name, address, nickname } = req.body;
+            const updatedUser = yield User_1.User.findByIdAndUpdate(userId, { name, address, nickname }, { new: true }).select('-password');
+            if (!updatedUser) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            res.json(updatedUser);
+        }
+        catch (error) {
+            console.error('Error updating user profile:', error);
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    }));
     router.delete('/users/:id', isAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const deletedUser = yield User_1.User.findByIdAndDelete(req.params.id);
@@ -143,16 +186,46 @@ const configureRoutes = (passport, router) => {
     // ======================
     // Szálloda útvonalak
     // ======================
-    router.get('/hotels', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    router.get('/hotels/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const hotels = yield Hotel_1.Hotel.find();
-            res.status(200).send(hotels);
+            console.log('Getting hotel with ID:', req.params.id);
+            const hotel = yield Hotel_1.Hotel.findById(req.params.id).select('-__v');
+            if (!hotel) {
+                return res.status(404).json({ message: 'Hotel not found' });
+            }
+            console.log('Found hotel:', hotel);
+            res.json(hotel);
         }
         catch (error) {
-            res.status(500).send('Hiba a szállodák lekérdezésekor');
+            console.error('Error fetching hotel:', error);
+            res.status(500).json({ message: 'Error fetching hotel details' });
         }
     }));
-    router.post('/hotels', isAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    router.get('/hotels', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log('GET /hotels endpoint hit');
+        try {
+            const hotels = yield Hotel_1.Hotel.find().select('-__v');
+            console.log('Found hotels:', hotels);
+            res.json(hotels);
+        }
+        catch (error) {
+            console.error('Error fetching hotels:', error);
+            res.status(500).json({ message: 'Error fetching hotels' });
+        }
+    }));
+    /*
+    router.get('/app/hotels', async (req: Request, res: Response) => {
+        console.log('GET /hotels endpoint hit');
+        try {
+            const hotels = await Hotel.find().select('-__v');
+            res.json(hotels);
+        } catch (error) {
+            console.error('Error fetching hotels:', error);
+            res.status(500).json({ message: 'Error fetching hotels' });
+        }
+    });
+*/
+    router.post('/app/hotels', isAdmin, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const hotel = new Hotel_1.Hotel(req.body);
             const savedHotel = yield hotel.save();

@@ -1,71 +1,43 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 import { HeaderComponent } from '../shared/components/header/header/header.component';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
-
-interface Booking {
-  hotelName: string;
-  startDate: Date;
-  endDate: Date;
-  price: number;
-  status: 'confirmed' | 'pending' | 'cancelled';
-}
+import { MatIconModule } from '@angular/material/icon';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AuthService } from '../shared/services/auth.service';
+import { User } from '../shared/model/User';
 
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [MatTabsModule, ReactiveFormsModule, CommonModule, RouterModule, HeaderComponent],
-  template: `
-    <app-header></app-header>
-    <div class="content">
-      <h2>User Profile</h2>
-      <div class="profile-container">
-        <!-- Add profile content here -->
-      </div>
-    </div>
-  `,
-  styles: [`
-    .content {
-      padding-top: 64px;
-      margin: 20px;
-    }
-    .profile-container {
-      padding: 20px;
-    }
-  `]
+  imports: [
+    CommonModule,
+    HeaderComponent,
+    MatTabsModule,
+    MatIconModule,
+    MatCheckboxModule,
+    ReactiveFormsModule
+  ],
+  templateUrl: './user-profile.component.html',
+  styleUrls: ['./user-profile.component.scss']
 })
 export class UserProfileComponent implements OnInit {
-  // Formok
+  user: User | null = null;
+  bookings: any[] = [];
   personalForm: FormGroup;
   passwordForm: FormGroup;
-  notificationForm: FormGroup;
 
-  // Demo adatok
-  user = {
-    name: 'John Doe',
-    email: 'john@example.com',
-    phone: '+36123456789',
-    address: 'Budapest, Fő utca 1.'
-  };
-
-  bookings: Booking[] = [
-    {
-      hotelName: 'Deluxe Hotel',
-      startDate: new Date(2024, 5, 15),
-      endDate: new Date(2024, 5, 20),
-      price: 320,
-      status: 'confirmed'
-    }
-  ];
-
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private authService: AuthService,
+    private fb: FormBuilder
+  ) {
     this.personalForm = this.fb.group({
-      name: [this.user.name, Validators.required],
-      email: [{value: this.user.email, disabled: true}],
-      phone: [this.user.phone],
-      address: [this.user.address]
+      name: [''],
+      email: ['', { disabled: true }],
+      phone: [''],
+      nickname: [''],
+      address: ['']
     });
 
     this.passwordForm = this.fb.group({
@@ -73,43 +45,69 @@ export class UserProfileComponent implements OnInit {
       newPassword: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', Validators.required]
     });
+  }
 
-    this.notificationForm = this.fb.group({
-      emailConfirmation: [true],
-      emailCancellation: [true]
+  ngOnInit() {
+    console.log('Fetching user data...');
+    this.authService.getCurrentUser().subscribe({
+        next: (userData: User) => {
+            console.log('Received user data:', userData);
+            this.user = userData;
+            this.personalForm.patchValue({
+                email: userData.email,
+                name: userData.name || '',
+                nickname: userData.nickname || '',
+                address: userData.address || ''
+            });
+        },
+        error: (error) => {
+            console.error('Error details:', error);
+            if (error.status === 401) {
+                console.log('User not authenticated');
+                // Handle unauthorized access
+            } else if (error.status === 404) {
+                console.log('User profile not found');
+                // Handle missing profile
+            }
+        }
     });
-  }
-
-  ngOnInit(): void {
-    // Valós adatok betöltése API hívással
-    // this.authService.getUserProfile().subscribe(...);
-  }
+}
 
   updatePersonal() {
     if (this.personalForm.valid) {
-      // API hívás a frissítéshez
-      console.log('Personal data updated:', this.personalForm.value);
+      const updatedData = {
+        name: this.personalForm.get('name')?.value,
+        address: this.personalForm.get('address')?.value,
+        nickname: this.personalForm.get('nickname')?.value
+      };
+      console.log('Updating profile with:', updatedData);
+      this.authService.updateProfile(updatedData).subscribe({
+        next: () => console.log('Profile updated successfully'),
+        error: (error) => console.error('Update error:', error)
+      });
     }
   }
 
   changePassword() {
-    if (this.passwordForm.valid && this.passwordForm.value.newPassword === this.passwordForm.value.confirmPassword) {
-      // API hívás jelszóváltoztatáshoz
-      console.log('Password changed');
+    if (this.passwordForm.valid) {
+      if (this.passwordForm.get('newPassword')?.value !==
+          this.passwordForm.get('confirmPassword')?.value) {
+        console.error('Passwords do not match');
+        return;
+      }
+
+      const passwordData = {
+        currentPassword: this.passwordForm.get('currentPassword')?.value,
+        newPassword: this.passwordForm.get('newPassword')?.value
+      };
+
+      this.authService.changePassword(passwordData).subscribe({
+        next: () => {
+          console.log('Password changed successfully');
+          this.passwordForm.reset();
+        },
+        error: (error) => console.error('Password change error:', error)
+      });
     }
-  }
-
-  updateNotifications() {
-    // API hívás értesítési beállításokhoz
-    console.log('Notification settings updated:', this.notificationForm.value);
-  }
-
-  // Státusz címkék formázása
-  statusLabel(status: string): string {
-    return {
-      'confirmed': 'Megerősítve',
-      'pending': 'Függőben',
-      'cancelled': 'Lemondva'
-    }[status] || '';
   }
 }

@@ -59,4 +59,37 @@ export class AuthService {
     });
   }
 
+  getCurrentUser() {
+    return this.http.get<User>(`${this.apiUrl}/app/users/profile`, {
+        withCredentials: true,
+        headers: new HttpHeaders({
+            'Content-Type': 'application/json'
+        })
+    });
+}
+
+  getUserBookings() {
+    return this.http.get<any[]>(`${this.apiUrl}/app/users/bookings`, {
+      withCredentials: true
+    });
+  }
+
+  updateProfile(profileData: any) {
+    return this.http.put(`${this.apiUrl}/app/users/profile`, profileData, {
+      withCredentials: true
+    });
+  }
+
+  changePassword(passwordData: any) {
+    return this.http.put(`${this.apiUrl}/app/users/password`, passwordData, {
+      withCredentials: true
+    });
+  }
+
+  updateNotifications(notificationSettings: any) {
+    return this.http.put(`${this.apiUrl}/app/users/notifications`, notificationSettings, {
+      withCredentials: true
+    });
+  }
+
 }

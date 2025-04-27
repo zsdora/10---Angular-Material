@@ -20,10 +20,9 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
 
     const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
         if (req.isAuthenticated()) {
-            next();
-        } else {
-            res.status(401).send('Bejelentkezés szükséges!');
+            return next();
         }
+        res.status(401).json({ message: 'Unauthorized' });
     };
 
     // Alap útvonalak (meghagyható)
@@ -87,7 +86,7 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
     // ======================
     // Felhasználó kezelés (Admin)
     // ======================
-    router.get('/users', isAdmin, async (req: Request, res: Response) => {
+    router.get('/app/users', isAdmin, async (req: Request, res: Response) => {
         try {
             const users = await User.find().select('-password');
             res.status(200).send(users);
@@ -95,8 +94,22 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
             res.status(500).send('Felhasználók betöltése sikertelen');
         }
     });
+    
+    router.get('/app/users/current', isAuthenticated, async (req: Request, res: Response) => {
+        try {
+            const userId = (req.user as any)._id;
+            const user = await User.findById(userId).select('-password');
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            res.json(user);
+        } catch (error) {
+            console.error('Error fetching current user:', error);
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    });
 
-    router.post('/users', isAdmin, async (req: Request, res: Response) => {
+    router.post('/app/users', isAdmin, async (req: Request, res: Response) => {
         try {
             const { email, password, role, name, address, nickname } = req.body;
             if (!email || !password || !role) {
@@ -125,6 +138,47 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
         }
     });
 
+    router.get('/users/profile', isAuthenticated, async (req: Request, res: Response) => {
+        try {
+            // Get the user ID from the authenticated request
+            const userId = (req.user as any)._id;
+            
+            // Find the user and exclude password field
+            const user = await User.findById(userId).select('-password');
+            
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            
+            res.json(user);
+        } catch (error) {
+            console.error('Error fetching user profile:', error);
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    });
+
+    router.put('/users/profile', isAuthenticated, async (req: Request, res: Response) => {
+        try {
+            const userId = (req.user as any)._id;
+            const { name, address, nickname } = req.body;
+            
+            const updatedUser = await User.findByIdAndUpdate(
+                userId,
+                { name, address, nickname },
+                { new: true }
+            ).select('-password');
+
+            if (!updatedUser) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            res.json(updatedUser);
+        } catch (error) {
+            console.error('Error updating user profile:', error);
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    });
+
     router.delete('/users/:id', isAdmin, async (req: Request, res: Response) => {
         try {
             const deletedUser = await User.findByIdAndDelete(req.params.id);
@@ -138,16 +192,48 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
     // ======================
     // Szálloda útvonalak
     // ======================
-    router.get('/hotels', async (req: Request, res: Response) => {
+
+    router.get('/hotels/:id', async (req: Request, res: Response) => {
         try {
-            const hotels = await Hotel.find();
-            res.status(200).send(hotels);
+            console.log('Getting hotel with ID:', req.params.id);
+            const hotel = await Hotel.findById(req.params.id).select('-__v');
+            
+            if (!hotel) {
+                return res.status(404).json({ message: 'Hotel not found' });
+            }
+            
+            console.log('Found hotel:', hotel);
+            res.json(hotel);
         } catch (error) {
-            res.status(500).send('Hiba a szállodák lekérdezésekor');
+            console.error('Error fetching hotel:', error);
+            res.status(500).json({ message: 'Error fetching hotel details' });
         }
     });
 
-    router.post('/hotels', isAdmin, async (req: Request, res: Response) => {
+    router.get('/hotels', async (req: Request, res: Response) => {
+        console.log('GET /hotels endpoint hit');
+        try {
+            const hotels = await Hotel.find().select('-__v');
+            console.log('Found hotels:', hotels);
+            res.json(hotels);
+        } catch (error) {
+            console.error('Error fetching hotels:', error);
+            res.status(500).json({ message: 'Error fetching hotels' });
+        }
+    });
+    /*
+    router.get('/app/hotels', async (req: Request, res: Response) => {
+        console.log('GET /hotels endpoint hit');
+        try {
+            const hotels = await Hotel.find().select('-__v');
+            res.json(hotels);
+        } catch (error) {
+            console.error('Error fetching hotels:', error);
+            res.status(500).json({ message: 'Error fetching hotels' });
+        }
+    });
+*/
+    router.post('/app/hotels', isAdmin, async (req: Request, res: Response) => {
         try {
             const hotel = new Hotel(req.body);
             const savedHotel = await hotel.save();
