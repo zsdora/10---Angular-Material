@@ -2,24 +2,42 @@
   <span>InnBound</span>
   <span class="spacer"></span>
 
+  <!-- New Admin Buttons -->
+  <ng-container *ngIf="isAdmin">
+    <button mat-button routerLink="/all-bookings" *ngIf="currentRoute !== '/all-bookings'">
+      <mat-icon>group</mat-icon>
+      <span class="button-text">All bookings</span>
+    </button>
+
+    <button mat-button routerLink="/hotel-management" *ngIf="currentRoute !== '/hotel-management'">
+      <mat-icon>assessment</mat-icon>
+      <span class="button-text">Hotel management</span>
+    </button>
+
+    <button mat-button routerLink="/room-management" *ngIf="currentRoute !== '/room-management'">
+      <mat-icon>settings</mat-icon>
+      <span class="button-text">Room management</span>
+    </button>
+  </ng-container>
+
   <button mat-button routerLink="/dashboard" *ngIf="currentRoute !== '/dashboard'">
     <mat-icon>dashboard</mat-icon>
-    Dashboard
+    <span class="button-text">Dashboard</span>
   </button>
 
   <button mat-button routerLink="/hotels" *ngIf="currentRoute !== '/hotels'">
     <mat-icon>hotel</mat-icon>
-    Hotels
+    <span class="button-text">Hotels</span>
   </button>
 
   <button mat-button routerLink="/bookings" *ngIf="currentRoute !== '/bookings'">
     <mat-icon>book</mat-icon>
-    Booking
+    <span class="button-text">Booking</span>
   </button>
 
   <button mat-button routerLink="/profile" *ngIf="currentRoute !== '/profile'">
     <mat-icon>person</mat-icon>
-    Profile
+    <span class="button-text">Profile</span>
   </button>
 
   <button mat-icon-button (click)="logout()">

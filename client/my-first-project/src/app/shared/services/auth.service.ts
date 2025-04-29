@@ -3,12 +3,15 @@ import { Injectable } from '@angular/core';
 import { User } from '../model/User';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { BehaviorSubject, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private apiUrl = environment.apiUrl;
+  private userRole = new BehaviorSubject<string | null>(null);
+  userRole$ = this.userRole.asObservable();
 
   constructor(private http: HttpClient) { }
 
@@ -21,6 +24,8 @@ export class AuthService {
           'Content-Type': 'application/json'
         })
       }
+    ).pipe(
+      tap(() => this.updateUserRole())
     );
   }
 
@@ -37,12 +42,28 @@ export class AuthService {
   }
 
   logout() {
+    this.userRole.next(null);
     return this.http.post(`${this.apiUrl}/app/logout`, {},
       {
         withCredentials: true,
         responseType: 'text'
       }
     );
+  }
+
+  isUserAdmin(): boolean {
+    return this.userRole.value === 'admin';
+  }
+
+  private updateUserRole() {
+    this.getCurrentUser().subscribe({
+      next: (user) => {
+        this.userRole.next(user?.role || null);
+      },
+      error: () => {
+        this.userRole.next(null);
+      }
+    });
   }
 
   checkAuth() {

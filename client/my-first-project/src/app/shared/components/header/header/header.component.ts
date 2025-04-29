@@ -5,6 +5,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../../services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-header',
@@ -20,6 +21,8 @@ import { AuthService } from '../../../services/auth.service';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent {
+  isAdmin: boolean = false;
+  private subscription!: Subscription;
   constructor(
     private authService: AuthService,
     private router: Router
@@ -29,10 +32,26 @@ export class HeaderComponent {
     return this.router.url;
   }
 
+  ngOnInit() {
+    this.subscription = this.authService.userRole$.subscribe(role => {
+      this.isAdmin = role === 'admin';
+    });
+  }
+
+  checkAdminStatus() {
+    this.isAdmin = this.authService.isUserAdmin();
+  }
+
   logout() {
     this.authService.logout().subscribe({
       next: () => this.router.navigateByUrl('/login'),
       error: (err) => console.error('Logout failed:', err)
     });
+  }
+
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
 }
