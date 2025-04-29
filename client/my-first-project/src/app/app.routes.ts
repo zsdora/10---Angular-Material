@@ -14,5 +14,8 @@ export const routes: Routes = [
     { path: 'hotels/:id', loadComponent: () => import('./hotel-details/hotel-details.component').then(m => m.HotelDetailsComponent)},
     { path: 'bookings', loadComponent: () => import('./booking-list/booking-list.component').then(m => m.BookingListComponent) },
     { path: 'profile', loadComponent: () => import('./user-profile/user-profile.component').then(m => m.UserProfileComponent) },
+    { path: 'all-bookings', loadComponent: () => import('./all-bookings/all-bookings.component').then(m => m.AllBookingsComponent)},
+    { path: 'hotel-management', loadComponent: () => import('./hotel-management/hotel-management.component').then(m => m.HotelManagementComponent)},
+    { path: 'room-management', loadComponent: () => import('./room-management/room-management.component').then(m => m.RoomManagementComponent)},
     { path: '**', redirectTo: 'login' }
 ];
