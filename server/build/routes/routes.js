@@ -306,6 +306,21 @@ const configureRoutes = (passport, router) => {
             res.status(500).json({ message: 'Failed to cancel booking' });
         }
     }));
+    router.get('/bookings/all', isAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log('GET /app/bookings/all route hit');
+        try {
+            const allBookings = yield Booking_1.Booking.find()
+                .populate('user_id', 'name email')
+                .populate('hotel_id', 'name city')
+                .populate('room_id', 'price room_type');
+            console.log('Found all bookings:', allBookings);
+            res.status(200).json(allBookings);
+        }
+        catch (error) {
+            console.error('Error in /app/bookings/all route:', error);
+            res.status(500).json({ message: 'Failed to load all bookings' });
+        }
+    }));
     // ======================
     // Ajánlat útvonalak
     // ======================

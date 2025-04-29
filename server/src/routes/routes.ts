@@ -329,6 +329,43 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
         }
     });
 
+    router.get('/app/bookings/all', isAuthenticated, async (req: Request, res: Response) => {
+        console.log('GET /app/bookings/all route hit');
+        try {
+            const allBookings = await Booking.find()
+                .populate({
+                    path: 'user_id',
+                    select: 'name email'
+                })
+                .populate({
+                    path: 'hotel_id',
+                    select: 'name city'
+                })
+                .populate({
+                    path: 'room_id',
+                    select: 'room_type price'
+                });
+    
+            // Keep the original structure but ensure populated fields are handled safely
+            const transformedBookings = allBookings.map(booking => ({
+                _id: booking._id,
+                user_id: booking.user_id,
+                hotel_id: booking.hotel_id,
+                room_id: booking.room_id,
+                check_in: booking.check_in,
+                check_out: booking.check_out,
+                price: booking.price,
+                status: booking.status
+            }));
+    
+            console.log('Found all bookings:', transformedBookings);
+            res.status(200).json(transformedBookings);
+        } catch (error: any) {
+            console.error('Error in /app/bookings/all route:', error);
+            res.status(500).json({ message: 'Failed to load all bookings' });
+        }
+    });
+
     // ======================
     // Ajánlat útvonalak
     // ======================

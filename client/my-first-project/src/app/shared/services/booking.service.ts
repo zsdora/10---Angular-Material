@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { Booking } from '../model/Booking';
 import { environment } from '../../../environments/environment';
 
+
 @Injectable({
   providedIn: 'root'
 })
@@ -35,4 +36,10 @@ export class BookingService {
       withCredentials: true
     });
   }
+
+  getAllBookings(): Observable<Booking[]> {
+    return this.http.get<Booking[]>(`${this.apiUrl}/app/bookings/all`, {
+        withCredentials: true
+    });
+}
 }
