@@ -246,6 +246,22 @@ const configureRoutes = (passport, router) => {
             res.status(400).send('Érvénytelen szobaadatok');
         }
     }));
+    router.get('/rooms', isAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log('GET /rooms route hit');
+        try {
+            const rooms = yield Room_1.Room.find()
+                .populate({
+                path: 'hotel_id',
+                select: 'name city'
+            });
+            console.log('Found rooms:', rooms);
+            res.status(200).json(rooms);
+        }
+        catch (error) {
+            console.error('Error in /rooms route:', error);
+            res.status(500).json({ message: 'Failed to load rooms' });
+        }
+    }));
     // ======================
     // Foglalás útvonalak
     // ======================
@@ -310,11 +326,31 @@ const configureRoutes = (passport, router) => {
         console.log('GET /app/bookings/all route hit');
         try {
             const allBookings = yield Booking_1.Booking.find()
-                .populate('user_id', 'name email')
-                .populate('hotel_id', 'name city')
-                .populate('room_id', 'price room_type');
-            console.log('Found all bookings:', allBookings);
-            res.status(200).json(allBookings);
+                .populate({
+                path: 'user_id',
+                select: 'name email'
+            })
+                .populate({
+                path: 'hotel_id',
+                select: 'name city'
+            })
+                .populate({
+                path: 'room_id',
+                select: 'room_type price'
+            });
+            // Keep the original structure but ensure populated fields are handled safely
+            const transformedBookings = allBookings.map(booking => ({
+                _id: booking._id,
+                user_id: booking.user_id,
+                hotel_id: booking.hotel_id,
+                room_id: booking.room_id,
+                check_in: booking.check_in,
+                check_out: booking.check_out,
+                price: booking.price,
+                status: booking.status
+            }));
+            console.log('Found all bookings:', transformedBookings);
+            res.status(200).json(transformedBookings);
         }
         catch (error) {
             console.error('Error in /app/bookings/all route:', error);

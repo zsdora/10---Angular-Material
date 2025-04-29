@@ -258,6 +258,23 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
         }
     });
 
+    router.get('/rooms', isAuthenticated, async (req: Request, res: Response) => {
+        console.log('GET /rooms route hit');
+        try {
+            const rooms = await Room.find()
+                .populate({
+                    path: 'hotel_id',
+                    select: 'name city'
+                });
+    
+            console.log('Found rooms:', rooms);
+            res.status(200).json(rooms);
+        } catch (error: any) {
+            console.error('Error in /rooms route:', error);
+            res.status(500).json({ message: 'Failed to load rooms' });
+        }
+    });
+
     // ======================
     // Foglalás útvonalak
     // ======================
@@ -329,7 +346,7 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
         }
     });
 
-    router.get('/app/bookings/all', isAuthenticated, async (req: Request, res: Response) => {
+    router.get('/bookings/all', isAuthenticated, async (req: Request, res: Response) => {
         console.log('GET /app/bookings/all route hit');
         try {
             const allBookings = await Booking.find()

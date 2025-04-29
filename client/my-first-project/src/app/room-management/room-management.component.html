@@ -1,2 +1,44 @@
 <app-header></app-header>
-<p>room-management works!</p>
+
+<div class="page-title">
+  <h1>Room Management</h1>
+</div>
+
+<div class="container mat-elevation-z8">
+  <table mat-table [dataSource]="dataSource">
+    <ng-container matColumnDef="hotelName">
+      <th mat-header-cell *matHeaderCellDef> Hotel </th>
+      <td mat-cell *matCellDef="let room"> {{room.hotel_id?.name || 'N/A'}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="roomType">
+      <th mat-header-cell *matHeaderCellDef> Room Type </th>
+      <td mat-cell *matCellDef="let room"> {{room.room_type}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="price">
+      <th mat-header-cell *matHeaderCellDef> Price </th>
+      <td mat-cell *matCellDef="let room"> {{room.price | currency}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef> Status </th>
+      <td mat-cell *matCellDef="let room"> {{room.status}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef> Actions </th>
+      <td mat-cell *matCellDef="let room">
+        <button mat-icon-button color="primary" (click)="editRoom(room)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteRoom(room._id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</div>
