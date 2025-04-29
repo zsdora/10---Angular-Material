@@ -12,8 +12,13 @@ export class HotelService {
 
   constructor(private http: HttpClient) { }
 
+  getAllHotels(): Observable<Hotel[]> {
+    return this.http.get<Hotel[]>(`${this.apiUrl}/app/hotels`, {
+      withCredentials: true
+    });
+  }
+
   getHotels(): Observable<Hotel[]> {
-    // Note: The /app prefix is added by the router in index.ts
     return this.http.get<Hotel[]>(`${this.apiUrl}/app/hotels`, {
       withCredentials: true
     });
