@@ -1,10 +1,13 @@
 export interface Hotel {
-  _id: string;
+  _id?: string;
   name: string;
-  address: string;
   city: string;
+  street: string;
+  number: string;
+  address?: string;  // Added for backward compatibility
   description?: string;
-  amenities?: string[];
+  amenities: string[];
   rating?: number;
-  imageUrl?: string;
+  photos: string;
+  imageUrl?: string;  // Added for backward compatibility
 }

@@ -29,4 +29,10 @@ export class HotelService {
       withCredentials: true
     });
   }
+
+  createHotel(hotel: Omit<Hotel, '_id'>): Observable<Hotel> {
+    return this.http.post<Hotel>(`${this.apiUrl}/app/hotels`, hotel, {
+      withCredentials: true
+    });
+  }
 }

@@ -112,12 +112,15 @@ export class HotelListComponent implements OnInit {
     });
   }
 
-  viewDetails(hotelId: string) {
-    this.router.navigate(['/hotels', hotelId]);
+  viewDetails(hotelId: string | undefined): void {
+    if (hotelId) {
+      this.router.navigate(['/hotels', hotelId]);
+    }
   }
 
-  bookHotel(hotelId: string) {
-    console.log('Booking hotel:', hotelId);
-    // TODO: Implement booking logic
+  bookHotel(hotelId: string | undefined): void {
+    if (hotelId) {
+      this.router.navigate(['/booking', hotelId]);
+    }
   }
 }

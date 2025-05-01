@@ -17,7 +17,16 @@
             <span *ngFor="let amenity of hotel.amenities">{{ amenity }}</span>
           </div>
           <div class="hotel-actions">
-            <button class="book-btn" (click)="bookHotel(hotel)">Book</button>
+            <button mat-button color="primary"
+                    [disabled]="!hotel._id"
+                    (click)="viewDetails(hotel._id)">
+              View Details
+            </button>
+            <button mat-button color="accent"
+                    [disabled]="!hotel._id"
+                    (click)="bookHotel(hotel._id)">
+              Book Now
+            </button>
           </div>
         </div>
       </div>

@@ -4,9 +4,14 @@ import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { HeaderComponent } from '../shared/components/header/header/header.component';
 import { HotelService } from '../shared/services/hotel.service';
 import { Hotel } from '../shared/model/Hotel';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-hotel-management',
@@ -16,20 +21,38 @@ import { Hotel } from '../shared/model/Hotel';
     HeaderComponent,
     MatTableModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatChipsModule
   ],
   templateUrl: './hotel-management.component.html',
-  styleUrl: './hotel-management.component.scss'
+  styleUrls: ['./hotel-management.component.scss']
 })
-export class HotelManagementComponent {
-deleteHotel(arg0: any) {
-throw new Error('Method not implemented.');
-}
-editHotel(_t49: any) {
-throw new Error('Method not implemented.');
-}
-  displayedColumns: string[] = ['name', 'city', 'amenities', 'actions'];
+export class HotelManagementComponent implements OnInit {
+  router: any;
+  selectedFile: File | null = null;
+  dragOver: boolean = false;
+  displayedColumns: string[] = ['name', 'street', 'number', 'city', 'rating', 'amenities', 'actions'];
   dataSource = new MatTableDataSource<Hotel>([]);
+  isNameTaken: boolean = false;
+
+
+deleteHotel(arg0: any) {throw new Error('Method not implemented.');}
+editHotel(_t71: any) {throw new Error('Method not implemented.');}
+
+
+  newHotel: Omit<Hotel, '_id'> = {
+    name: '',
+    city: '',
+    street: '',
+    number: '',
+    description: '',
+    amenities: [],
+    rating: 0,
+    photos: ''
+  };
 
   constructor(private hotelService: HotelService) {}
 
@@ -40,12 +63,139 @@ throw new Error('Method not implemented.');
   loadHotels() {
     this.hotelService.getAllHotels().subscribe({
       next: (hotels) => {
-        this.dataSource.data = hotels;
         console.log('Loaded hotels:', hotels);
+        this.dataSource.data = hotels;
       },
       error: (error) => {
         console.error('Error fetching hotels:', error);
       }
     });
+  }
+
+  addAmenity(event: MatChipInputEvent): void {
+    const value = (event.value || '').trim();
+    if (value) {
+      this.newHotel.amenities = this.newHotel.amenities || [];
+      this.newHotel.amenities.push(value);
+    }
+    event.chipInput!.clear();
+  }
+
+  removeAmenity(amenity: string): void {
+    const index = this.newHotel.amenities?.indexOf(amenity) ?? -1;
+    if (index >= 0) {
+      this.newHotel.amenities?.splice(index, 1);
+    }
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragOver = true;
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragOver = false;
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragOver = false;
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.handleFileInput(files[0]);
+    }
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.handleFileInput(input.files[0]);
+    }
+  }
+
+  private handleFileInput(file: File) {
+    if (file.type.match(/image\/*/) === null) {
+      console.error('Only images are supported');
+      return;
+    }
+
+    this.selectedFile = file;
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        this.newHotel.photos = reader.result;
+      }
+    };
+  }
+
+  checkHotelName(name: string) {
+    if (!name) return;
+
+    const existingHotel = this.dataSource.data.find(
+      hotel => hotel.name.toLowerCase() === name.toLowerCase()
+    );
+
+    this.isNameTaken = !!existingHotel;
+  }
+
+  addHotel(): void {
+    if (!this.newHotel.name || !this.newHotel.city || !this.newHotel.street || !this.newHotel.number || this.isNameTaken) {
+      console.error('Required fields missing');
+      return;
+    }
+
+    const hotelData = {
+      name: this.newHotel.name,
+      city: this.newHotel.city,
+      street: this.newHotel.street,
+      number: this.newHotel.number,
+      description: this.newHotel.description || '',
+      amenities: this.newHotel.amenities || [],
+      rating: this.newHotel.rating || 0,
+      photos: this.newHotel.photos || ''  // Empty string as default
+    };
+
+    this.hotelService.createHotel(hotelData).subscribe({
+      next: (hotel) => {
+        console.log('Hotel created:', hotel);
+        this.loadHotels();
+        this.resetForm();
+        this.selectedFile = null;
+      },
+      error: (error) => {
+        console.error('Error creating hotel:', error);
+      }
+    });
+  }
+
+  private resetForm(): void {
+    this.newHotel = {
+      name: '',
+      city: '',
+      street: '',
+      number: '',
+      description: '',
+      amenities: [],
+      rating: 0,
+      photos: ''
+    };
+  }
+
+  viewDetails(hotelId: string | undefined): void {
+    if (hotelId) {
+      this.router.navigate(['/hotels', hotelId]);
+    }
+  }
+
+  bookHotel(hotelId: string | undefined): void {
+    if (hotelId) {
+      this.router.navigate(['/booking', hotelId]);
+    }
   }
 }
