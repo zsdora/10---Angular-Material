@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { HeaderComponent } from '../shared/components/header/header/header.component';
 import { HotelService } from '../shared/services/hotel.service';
 import { Hotel } from '../shared/model/Hotel';
@@ -25,7 +26,8 @@ import { switchMap } from 'rxjs';
     FormsModule,
     MatFormFieldModule,
     MatInputModule,
-    MatChipsModule
+    MatChipsModule,
+    MatExpansionModule
   ],
   templateUrl: './hotel-management.component.html',
   styleUrls: ['./hotel-management.component.scss']
@@ -37,10 +39,8 @@ export class HotelManagementComponent implements OnInit {
   displayedColumns: string[] = ['name', 'street', 'number', 'city', 'rating', 'amenities', 'actions'];
   dataSource = new MatTableDataSource<Hotel>([]);
   isNameTaken: boolean = false;
-
-
-editHotel(_t71: any) {throw new Error('Method not implemented.');}
-
+  editingHotel: Hotel | null = null;
+  expandedHotelId: string | null = null;
 
   newHotel: Omit<Hotel, '_id'> = {
     name: '',
@@ -226,6 +226,70 @@ editHotel(_t71: any) {throw new Error('Method not implemented.');}
           console.error('Error deleting hotel:', error);
         }
       });
+    }
+  }
+
+
+  editHotel(hotel: Hotel): void {
+    this.editingHotel = {
+      ...hotel,
+      amenities: [...(hotel.amenities || [])]
+    };
+    this.expandedHotelId = hotel._id ?? null;
+  }
+
+  cancelEdit(): void {
+    this.editingHotel = null;
+    this.expandedHotelId = null;
+  }
+  saveHotelChanges(): void {
+    if (!this.editingHotel?._id) {
+      console.error('No hotel to update');
+      return;
+    }
+
+    this.hotelService.updateHotel(this.editingHotel._id, this.editingHotel).subscribe({
+      next: (updatedHotel) => {
+        console.log('Hotel updated:', updatedHotel);
+        this.loadHotels();
+        this.cancelEdit();
+      },
+      error: (error) => {
+        console.error('Error updating hotel:', error);
+      }
+    });
+  }
+
+  addAmenityToEdit(event: MatChipInputEvent): void {
+    const value = (event.value || '').trim();
+    if (value && this.editingHotel) {
+      this.editingHotel.amenities = this.editingHotel.amenities || [];
+      this.editingHotel.amenities.push(value);
+    }
+    event.chipInput!.clear();
+  }
+
+  removeAmenityFromEdit(amenity: string): void {
+    if (!this.editingHotel?.amenities) return;
+
+    const index = this.editingHotel.amenities.indexOf(amenity);
+    if (index >= 0) {
+      this.editingHotel.amenities.splice(index, 1);
+    }
+  }
+
+  handleEditFileInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+
+    if (file && this.editingHotel) {
+      if (file.type.match(/image\/*/) === null) {
+        console.error('Only images are supported');
+        return;
+      }
+
+      this.editingHotel.photos = file.name;
+      console.log('Selected file for edit:', file.name);
     }
   }
 

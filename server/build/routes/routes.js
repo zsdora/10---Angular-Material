@@ -223,6 +223,23 @@ const configureRoutes = (passport, router) => {
             res.status(400).send('Érvénytelen adatok');
         }
     }));
+    router.put('/hotels/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const hotelId = req.params.id;
+            const updates = req.body;
+            // Log the update request
+            console.log('Updating hotel:', hotelId, updates);
+            const updatedHotel = yield Hotel_1.Hotel.findByIdAndUpdate(hotelId, { $set: updates }, { new: true, runValidators: true });
+            if (!updatedHotel) {
+                return res.status(404).json({ message: 'Hotel not found' });
+            }
+            res.json(updatedHotel);
+        }
+        catch (error) {
+            console.error('Error updating hotel:', error);
+            res.status(500).json({ message: 'Error updating hotel', error: error });
+        }
+    }));
     router.delete('/hotels/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const result = yield Hotel_1.Hotel.findByIdAndDelete(req.params.id);

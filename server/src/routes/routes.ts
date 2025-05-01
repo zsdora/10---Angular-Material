@@ -232,6 +232,31 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
         }
     });
 
+    router.put('/hotels/:id', async (req, res) => {
+        try {
+          const hotelId = req.params.id;
+          const updates = req.body;
+          
+          // Log the update request
+          console.log('Updating hotel:', hotelId, updates);
+      
+          const updatedHotel = await Hotel.findByIdAndUpdate(
+            hotelId,
+            { $set: updates },
+            { new: true, runValidators: true }
+          );
+      
+          if (!updatedHotel) {
+            return res.status(404).json({ message: 'Hotel not found' });
+          }
+      
+          res.json(updatedHotel);
+        } catch (error) {
+          console.error('Error updating hotel:', error);
+          res.status(500).json({ message: 'Error updating hotel', error: error });
+        }
+      });
+
     router.delete('/hotels/:id', async (req, res) => {
         try {
           const result = await Hotel.findByIdAndDelete(req.params.id);
