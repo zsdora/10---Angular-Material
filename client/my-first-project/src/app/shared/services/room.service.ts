@@ -29,4 +29,11 @@ export class RoomService {
       withCredentials: true
     });
   }
+
+  createRoom(room: any): Observable<any> {
+    console.log('Creating room with data:', room);
+    return this.http.post<Room>(`${this.apiUrl}/app/rooms`, room, {
+      withCredentials: true
+    });
+  }
 }

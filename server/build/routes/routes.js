@@ -193,8 +193,9 @@ const configureRoutes = (passport, router) => {
             if (!hotel) {
                 return res.status(404).json({ message: 'Hotel not found' });
             }
-            console.log('Found hotel:', hotel);
-            res.json(hotel);
+            const hotelWithImagePath = Object.assign(Object.assign({}, hotel.toObject()), { photos: hotel.photos ? `/assets/images/${hotel.photos}` : null });
+            console.log('Found hotel:', hotelWithImagePath);
+            res.json(hotelWithImagePath);
         }
         catch (error) {
             console.error('Error fetching hotel:', error);
@@ -205,8 +206,9 @@ const configureRoutes = (passport, router) => {
         console.log('GET /hotels endpoint hit');
         try {
             const hotels = yield Hotel_1.Hotel.find().select('-__v');
-            console.log('Found hotels:', hotels);
-            res.json(hotels);
+            const hotelsWithImagePaths = hotels.map(hotel => (Object.assign(Object.assign({}, hotel.toObject()), { photos: hotel.photos ? `/assets/images/${hotel.photos}` : null })));
+            console.log('Found hotels:', hotelsWithImagePaths);
+            res.json(hotelsWithImagePaths);
         }
         catch (error) {
             console.error('Error fetching hotels:', error);
@@ -290,6 +292,44 @@ const configureRoutes = (passport, router) => {
         catch (error) {
             console.error('Error in /rooms route:', error);
             res.status(500).json({ message: 'Failed to load rooms' });
+        }
+    }));
+    router.post('/rooms', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            console.log('Received room creation request:', req.body);
+            // Validate required fields
+            const { hotel_id, room_type, price } = req.body;
+            if (!hotel_id || !room_type || !price) {
+                return res.status(400).json({
+                    message: 'Missing required fields: hotel_id, room_type, or price'
+                });
+            }
+            // Verify hotel exists
+            const hotel = yield Hotel_1.Hotel.findById(hotel_id);
+            if (!hotel) {
+                return res.status(404).json({ message: 'Hotel not found' });
+            }
+            const room = new Room_1.Room({
+                hotel_id,
+                room_type,
+                price,
+                status: req.body.status || 'Available',
+                amenities: req.body.amenities || [],
+                description: req.body.description || ''
+            });
+            const savedRoom = yield room.save();
+            console.log('Room created successfully:', savedRoom);
+            // Populate hotel information
+            const populatedRoom = yield Room_1.Room.findById(savedRoom._id)
+                .populate('hotel_id', 'name city');
+            res.status(201).json(populatedRoom);
+        }
+        catch (error) {
+            console.error('Error creating room:', error);
+            res.status(500).json({
+                message: 'Error creating room',
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
         }
     }));
     // ======================

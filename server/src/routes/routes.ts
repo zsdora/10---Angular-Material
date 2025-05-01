@@ -323,6 +323,51 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
         }
     });
 
+    router.post('/rooms', async (req: Request, res: Response) => {
+        try {
+            console.log('Received room creation request:', req.body);
+            
+            // Validate required fields
+            const { hotel_id, room_type, price } = req.body;
+            if (!hotel_id || !room_type || !price) {
+                return res.status(400).json({ 
+                    message: 'Missing required fields: hotel_id, room_type, or price' 
+                });
+            }
+    
+            // Verify hotel exists
+            const hotel = await Hotel.findById(hotel_id);
+            if (!hotel) {
+                return res.status(404).json({ message: 'Hotel not found' });
+            }
+    
+            const room = new Room({
+                hotel_id,
+                room_type,
+                price,
+                status: req.body.status || 'Available',
+                amenities: req.body.amenities || [],
+                description: req.body.description || ''
+            });
+    
+            const savedRoom = await room.save();
+            console.log('Room created successfully:', savedRoom);
+            
+            // Populate hotel information
+            const populatedRoom = await Room.findById(savedRoom._id)
+                .populate('hotel_id', 'name city');
+                
+            res.status(201).json(populatedRoom);
+        } catch (error) {
+            console.error('Error creating room:', error);
+            res.status(500).json({ 
+                message: 'Error creating room', 
+                error: error instanceof Error ? error.message : 'Unknown error' 
+            });
+        }
+    });
+
+
     // ======================
     // Foglalás útvonalak
     // ======================

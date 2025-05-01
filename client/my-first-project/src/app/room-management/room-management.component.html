@@ -23,7 +23,11 @@
 
     <ng-container matColumnDef="status">
       <th mat-header-cell *matHeaderCellDef> Status </th>
-      <td mat-cell *matCellDef="let room"> {{room.status}} </td>
+      <td mat-cell *matCellDef="let room">
+        <span [style.color]="getRoomStatusColor(room.status)">
+          {{room.status}}
+        </span>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="actions">
@@ -42,3 +46,54 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
 </div>
+
+<mat-expansion-panel class="add-room-panel" [expanded]="true" [hideToggle]="true">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      Add a new room!
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+
+  <form #roomForm="ngForm" (ngSubmit)="addRoom(roomForm)">
+    <div class="form-grid">
+      <mat-form-field>
+        <mat-label>Select Hotel</mat-label>
+        <mat-select name="hotel_id" [(ngModel)]="newRoom.hotel_id" required>
+          <mat-option *ngFor="let hotel of hotels" [value]="hotel._id">
+            {{hotel.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Room Type</mat-label>
+        <mat-select name="room_type" [(ngModel)]="newRoom.room_type" required>
+          <mat-option value="Single">Single</mat-option>
+          <mat-option value="Double">Double</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Price</mat-label>
+        <input matInput type="number" name="price" [(ngModel)]="newRoom.price" required>
+        <span matPrefix>$&nbsp;</span>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Status</mat-label>
+        <mat-select name="status" [(ngModel)]="newRoom.status" required>
+          <mat-option *ngFor="let status of roomStatuses" [value]="status.value">
+            {{status.displayName}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div class="form-actions">
+        <button mat-button type="button" (click)="resetForm(roomForm)">Clear</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="!roomForm.valid">
+          Add Room
+        </button>
+      </div>
+    </div>
+  </form>
+</mat-expansion-panel>
