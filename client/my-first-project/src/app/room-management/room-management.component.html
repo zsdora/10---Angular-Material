@@ -47,6 +47,58 @@
   </table>
 </div>
 
+<mat-expansion-panel *ngIf="editingRoom"
+                    [expanded]="true"
+                    class="edit-room-panel">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      Edit room details!
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+
+  <div class="edit-form">
+    <mat-form-field>
+      <mat-label>Hotel</mat-label>
+      <mat-select [(ngModel)]="editingRoom.hotel_id">
+        <mat-option *ngFor="let hotel of hotels" [value]="hotel._id">
+          {{hotel.name}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Room Type</mat-label>
+      <mat-select [(ngModel)]="editingRoom.room_type">
+        <mat-option value="Single">Single</mat-option>
+        <mat-option value="Double">Double</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Price</mat-label>
+      <input matInput type="number" [(ngModel)]="editingRoom.price">
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Status</mat-label>
+      <mat-select [(ngModel)]="editingRoom.status">
+        <mat-option *ngFor="let status of roomStatuses" [value]="status.value">
+          {{status.displayName}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="action-buttons">
+      <button mat-raised-button color="primary" (click)="saveRoomChanges()">
+        Save Changes
+      </button>
+      <button mat-button (click)="cancelEdit()">
+        Cancel
+      </button>
+    </div>
+  </div>
+</mat-expansion-panel>
+
 <mat-expansion-panel class="add-room-panel" [expanded]="true" [hideToggle]="true">
   <mat-expansion-panel-header>
     <mat-panel-title>

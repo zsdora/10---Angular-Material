@@ -332,6 +332,32 @@ const configureRoutes = (passport, router) => {
             });
         }
     }));
+    router.put('/rooms/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const roomId = req.params.id;
+            const updates = req.body;
+            // Validate hotel exists if hotel_id is being updated
+            if (updates.hotel_id) {
+                const hotel = yield Hotel_1.Hotel.findById(updates.hotel_id);
+                if (!hotel) {
+                    return res.status(404).json({ message: 'Hotel not found' });
+                }
+            }
+            const updatedRoom = yield Room_1.Room.findByIdAndUpdate(roomId, updates, { new: true }).populate('hotel_id');
+            if (!updatedRoom) {
+                return res.status(404).json({ message: 'Room not found' });
+            }
+            console.log('Room updated:', updatedRoom);
+            res.json(updatedRoom);
+        }
+        catch (error) {
+            console.error('Error updating room:', error);
+            res.status(500).json({
+                message: 'Error updating room',
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    }));
     router.delete('/rooms/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const roomId = req.params.id;

@@ -36,4 +36,10 @@ export class RoomService {
       withCredentials: true
     });
   }
+
+  updateRoom(id: string, room: Room): Observable<Room> {
+    return this.http.put<Room>(`${this.apiUrl}/app/rooms/${id}`, room, {
+      withCredentials: true
+    });
+  }
 }

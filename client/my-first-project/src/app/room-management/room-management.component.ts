@@ -38,6 +38,7 @@ export class RoomManagementComponent implements OnInit {
   displayedColumns: string[] = ['hotelName', 'roomType', 'price', 'status', 'actions'];
   dataSource = new MatTableDataSource<any>([]);
   hotels: any[] = [];
+  editingRoom: Room | null = null;
   roomStatuses = [
     { value: 'Available', displayName: 'Available', color: 'green' },
     { value: 'Booked', displayName: 'Booked', color: 'red' },
@@ -111,8 +112,35 @@ export class RoomManagementComponent implements OnInit {
   }
 
   editRoom(room: Room) {
-    console.log('Edit room:', room);
-    // Implement edit functionality
+    this.editingRoom = { ...room }; // Create a copy to avoid direct modification
+    console.log('Editing room:', this.editingRoom);
+  }
+
+  cancelEdit() {
+    this.editingRoom = null;
+  }
+
+  saveRoomChanges() {
+    if (this.editingRoom && this.validateRoom(this.editingRoom)) {
+      this.roomService.updateRoom(this.editingRoom._id, this.editingRoom).subscribe({
+        next: (updatedRoom) => {
+          console.log('Room updated successfully:', updatedRoom);
+          this.snackBar.open('Room updated successfully', 'Close', { duration: 3000 });
+          this.loadRooms();
+          this.editingRoom = null;
+        },
+        error: (error) => {
+          console.error('Error updating room:', error);
+          this.snackBar.open('Error updating room', 'Close', { duration: 3000 });
+        }
+      });
+    } else {
+      this.snackBar.open('Please fill all required fields', 'Close', { duration: 3000 });
+    }
+  }
+
+  validateRoom(room: Room): boolean {
+    return !!(room.hotel_id && room.room_type && room.price > 0);
   }
 
   deleteRoom(roomId: string) {

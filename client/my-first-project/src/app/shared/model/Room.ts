@@ -6,4 +6,5 @@ export interface Room {
   description?: string;
   photos: string[];
   room_type: number;
+  status: string;
 }

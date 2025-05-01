@@ -367,6 +367,40 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
         }
     });
 
+    router.put('/rooms/:id', async (req: Request, res: Response) => {
+        try {
+            const roomId = req.params.id;
+            const updates = req.body;
+
+            // Validate hotel exists if hotel_id is being updated
+            if (updates.hotel_id) {
+                const hotel = await Hotel.findById(updates.hotel_id);
+                if (!hotel) {
+                    return res.status(404).json({ message: 'Hotel not found' });
+                }
+            }
+
+            const updatedRoom = await Room.findByIdAndUpdate(
+                roomId,
+                updates,
+                { new: true }
+            ).populate('hotel_id');
+
+            if (!updatedRoom) {
+                return res.status(404).json({ message: 'Room not found' });
+            }
+
+            console.log('Room updated:', updatedRoom);
+            res.json(updatedRoom);
+        } catch (error) {
+            console.error('Error updating room:', error);
+            res.status(500).json({ 
+                message: 'Error updating room',
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    });
+
     router.delete('/rooms/:id', async (req: Request, res: Response) => {
         try {
             const roomId = req.params.id;
