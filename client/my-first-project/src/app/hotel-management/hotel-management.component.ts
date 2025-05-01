@@ -39,7 +39,6 @@ export class HotelManagementComponent implements OnInit {
   isNameTaken: boolean = false;
 
 
-deleteHotel(arg0: any) {throw new Error('Method not implemented.');}
 editHotel(_t71: any) {throw new Error('Method not implemented.');}
 
 
@@ -107,31 +106,41 @@ editHotel(_t71: any) {throw new Error('Method not implemented.');}
 
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
-      this.handleFileInput(files[0]);
+      this.processFile(files[0]);
     }
   }
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.handleFileInput(input.files[0]);
+      this.processFile(input.files[0]);
     }
   }
 
-  private handleFileInput(file: File) {
+  private processFile(file: File): void {
     if (file.type.match(/image\/*/) === null) {
       console.error('Only images are supported');
       return;
     }
 
+    this.newHotel.photos = file.name;
     this.selectedFile = file;
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        this.newHotel.photos = reader.result;
+    console.log('Selected file:', file.name);
+  }
+
+  handleFileInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const file = target.files?.[0];
+
+    if (file) {
+      if (file.type.match(/image\/*/) === null) {
+        console.error('Only images are supported');
+        return;
       }
-    };
+
+      this.newHotel.photos = file.name;
+      console.log('Selected file:', file.name);
+    }
   }
 
   checkHotelName(name: string) {
@@ -198,4 +207,26 @@ editHotel(_t71: any) {throw new Error('Method not implemented.');}
       this.router.navigate(['/booking', hotelId]);
     }
   }
+
+  deleteHotel(hotelId: string): void {
+    if (!hotelId) {
+      console.error('No hotel ID provided');
+      return;
+    }
+
+    // Confirm deletion with the user
+    if (confirm('Are you sure you want to delete this hotel?')) {
+      this.hotelService.deleteHotel(hotelId).subscribe({
+        next: () => {
+          console.log('Hotel deleted successfully');
+          // Refresh the hotel list
+          this.loadHotels();
+        },
+        error: (error) => {
+          console.error('Error deleting hotel:', error);
+        }
+      });
+    }
+  }
+
 }

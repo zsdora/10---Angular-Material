@@ -35,4 +35,8 @@ export class HotelService {
       withCredentials: true
     });
   }
+
+  deleteHotel(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/app/hotels/${id}`);
+  }
 }

@@ -232,6 +232,19 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
         }
     });
 
+    router.delete('/hotels/:id', async (req, res) => {
+        try {
+          const result = await Hotel.findByIdAndDelete(req.params.id);
+          if (!result) {
+            return res.status(404).json({ message: 'Hotel not found' });
+          }
+          res.json({ message: 'Hotel deleted successfully' });
+        } catch (error) {
+          console.error('Delete error:', error);
+          res.status(500).json({ message: 'Error deleting hotel', error: error });
+        }
+      });
+
     // ======================
     // Szoba útvonalak (REST-es szerkezet)
     // ======================

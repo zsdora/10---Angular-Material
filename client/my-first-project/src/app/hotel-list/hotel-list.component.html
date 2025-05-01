@@ -1,36 +1,55 @@
-<div class="hotel-container">
-  <div class="hotel-list-main">
-    <h1>Hotels</h1>
+<app-header></app-header>
+<div class="content">
+  <h2>Available Hotels</h2>
+  <div class="hotel-grid">
+    <mat-card *ngFor="let hotel of hotels" class="hotel-card">
+      <mat-card-header>
+        <mat-card-title>{{hotel.name}}</mat-card-title>
+        <mat-card-subtitle>{{hotel.city}}</mat-card-subtitle>
+      </mat-card-header>
 
-    <div *ngIf="hotels?.length === 0" class="empty-list">
-      <p>No hotels found.</p>
-    </div>
+      <mat-card-content>
+        <div class="hotel-image">
+          <ng-container *ngIf="hotel.photos">
+            <img [src]="getImagePath(hotel.photos)"
+                 [alt]="hotel.name"
+                 class="hotel-photo"
+                 (error)="handleImageError($event)"
+                 *ngIf="isImageVerified(getImagePath(hotel.photos))">
+          </ng-container>
+          <mat-icon class="hotel-icon" [class.hidden]="hotel.photos && !errorLoadingImage">
+            apartment
+          </mat-icon>
+        </div>
 
-    <div class="hotel-list">
-      <div class="hotel-card" *ngFor="let hotel of hotels">
-        <!--<div class="hotel-image" [ngStyle]="{'background-image': 'url(' + (hotel.photos?.[0] || defaultImage)+ ')'}"></div>-->
         <div class="hotel-info">
           <h2>{{ hotel.name }}</h2>
-          <p class="address">{{ hotel.address }}</p>
+          <p class="address">{{ hotel.street }} {{ hotel.number }}</p>
           <p class="city">{{ hotel.city }}</p>
+          <div class="rating" *ngIf="hotel.rating">
+            <mat-icon>star</mat-icon>
+            <span>{{ hotel.rating }}/5</span>
+          </div>
           <div class="amenities" *ngIf="hotel.amenities?.length">
             <span *ngFor="let amenity of hotel.amenities">{{ amenity }}</span>
           </div>
-          <div class="hotel-actions">
-            <button mat-button color="primary"
-                    [disabled]="!hotel._id"
-                    (click)="viewDetails(hotel._id)">
-              View Details
-            </button>
-            <button mat-button color="accent"
-                    [disabled]="!hotel._id"
-                    (click)="bookHotel(hotel._id)">
-              Book Now
-            </button>
-          </div>
         </div>
-      </div>
-    </div>
+      </mat-card-content>
+
+      <mat-card-actions class="hotel-actions">
+        <button mat-button color="primary"
+                [disabled]="!hotel._id"
+                (click)="viewDetails(hotel._id)">
+          <mat-icon>info</mat-icon>
+          View Details
+        </button>
+        <button mat-button color="accent"
+                [disabled]="!hotel._id"
+                (click)="bookHotel(hotel._id)">
+          <mat-icon>book_online</mat-icon>
+          Book Now
+        </button>
+      </mat-card-actions>
+    </mat-card>
   </div>
 </div>
-

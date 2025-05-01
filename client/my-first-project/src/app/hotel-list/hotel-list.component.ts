@@ -18,97 +18,41 @@ import { Router } from '@angular/router';
     MatIconModule,
     HeaderComponent
   ],
-  template: `
-    <app-header></app-header>
-    <div class="content">
-      <h2>Available Hotels</h2>
-      <div class="hotel-grid">
-        <mat-card *ngFor="let hotel of hotels" class="hotel-card">
-          <mat-card-header>
-            <mat-card-title>{{hotel.name}}</mat-card-title>
-            <mat-card-subtitle>{{hotel.city}}</mat-card-subtitle>
-          </mat-card-header>
-          <div class="hotel-image">
-            <mat-icon class="hotel-icon">apartment</mat-icon>
-          </div>
-          <mat-card-content>
-            <p>{{hotel.description}}</p>
-            <div class="amenities" *ngIf="hotel.amenities?.length">
-              <span *ngFor="let amenity of hotel.amenities" class="amenity-tag">
-                {{amenity}}
-              </span>
-            </div>
-          </mat-card-content>
-          <mat-card-actions>
-            <button mat-button color="primary" (click)="viewDetails(hotel._id)">
-              <mat-icon>info</mat-icon> Details
-            </button>
-            <button mat-button color="accent" (click)="bookHotel(hotel._id)">
-              <mat-icon>book</mat-icon> Book Now
-            </button>
-          </mat-card-actions>
-        </mat-card>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .content {
-      padding-top: 64px;
-      margin: 20px;
-    }
-    .hotel-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 20px;
-      padding: 20px;
-    }
-    .hotel-card {
-      max-width: 400px;
-      margin: auto;
-    }
-    .hotel-image {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 200px;
-      background-color: #f5f5f5;
-      margin: 16px 0;
-      border-radius: 4px;
-    }
-    .hotel-icon {
-      font-size: 64px;
-      width: 64px;
-      height: 64px;
-      color: #3f51b5;
-    }
-    .amenity-tag {
-      background: #e0e0e0;
-      padding: 4px 8px;
-      border-radius: 16px;
-      margin: 4px;
-      display: inline-block;
-      font-size: 12px;
-    }
-    mat-card-content {
-      margin: 16px 0;
-    }
-    .amenities {
-      margin-top: 8px;
-    }
-  `]
+  templateUrl: './hotel-list.component.html',
+  styleUrls: ['./hotel-list.component.scss'],
 })
 export class HotelListComponent implements OnInit {
   hotels: Hotel[] = [];
+  errorLoadingImage = false;
+  private verifiedImages: Map<string, boolean> = new Map();
+
 
   constructor(private hotelService: HotelService, private router: Router) {}
 
-  ngOnInit() {
-    this.hotelService.getHotels().subscribe({
-      next: (hotels) => {
-        console.log('Fetched hotels:', hotels);
-        this.hotels = hotels;
-      },
-      error: (error) => console.error('Error fetching hotels:', error)
+  async ngOnInit() {
+    this.hotelService.getAllHotels().subscribe(hotels => {
+      this.hotels = hotels;
+      // Add debug logging
+      this.hotels?.forEach(async (hotel) => {
+        if (hotel.photos) {
+          const path = this.getImagePath(hotel.photos);
+          try {
+            const response = await fetch(path);
+            this.verifiedImages.set(path, response.ok);
+          } catch {
+            this.verifiedImages.set(path, false);
+          }
+        }
+      });
+    });
+
+    console.log('Checking image path...');
+  fetch('/assets/images/1.jpg')
+    .then(response => {
+      console.log('Image fetch response:', response.status, response.statusText);
+    })
+    .catch(error => {
+      console.error('Image fetch error:', error);
     });
   }
 
@@ -122,5 +66,30 @@ export class HotelListComponent implements OnInit {
     if (hotelId) {
       this.router.navigate(['/booking', hotelId]);
     }
+  }
+
+  getImagePath(photoData: any): string {
+    if (!photoData) return '';
+
+    let filename = '';
+    if (typeof photoData === 'string') {
+      filename = photoData;
+    } else if (photoData.filename) {
+      filename = photoData.filename;
+    }
+
+    if (!filename) return '';
+
+    return `assets/images/${filename.trim()}`;
+  }
+
+  handleImageError(event: Event): void {
+    const imgElement = event.target as HTMLImageElement;
+    this.verifiedImages.set(imgElement.src, false);
+    this.errorLoadingImage = true;
+  }
+
+  isImageVerified(path: string): boolean {
+    return this.verifiedImages.get(path) || false;
   }
 }

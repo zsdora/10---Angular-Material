@@ -223,6 +223,19 @@ const configureRoutes = (passport, router) => {
             res.status(400).send('Érvénytelen adatok');
         }
     }));
+    router.delete('/hotels/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const result = yield Hotel_1.Hotel.findByIdAndDelete(req.params.id);
+            if (!result) {
+                return res.status(404).json({ message: 'Hotel not found' });
+            }
+            res.json({ message: 'Hotel deleted successfully' });
+        }
+        catch (error) {
+            console.error('Delete error:', error);
+            res.status(500).json({ message: 'Error deleting hotel', error: error });
+        }
+    }));
     // ======================
     // Szoba útvonalak (REST-es szerkezet)
     // ======================

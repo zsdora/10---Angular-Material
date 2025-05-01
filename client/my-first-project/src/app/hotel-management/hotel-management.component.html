@@ -42,7 +42,9 @@
         <button mat-icon-button color="primary" (click)="editHotel(hotel)">
           <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button color="warn" (click)="deleteHotel(hotel._id)">
+        <button mat-icon-button color="warn" (click)="deleteHotel(hotel._id)"
+            [disabled]="!hotel._id"
+            matTooltip="Delete hotel">
           <mat-icon>delete</mat-icon>
         </button>
       </td>
@@ -111,21 +113,17 @@
       <mat-hint>Press Enter to add amenity</mat-hint>
     </mat-form-field>
 
-    <div class="file-upload-container"
-         [class.dragover]="dragOver"
-         (dragover)="onDragOver($event)"
-         (dragleave)="onDragLeave($event)"
-         (drop)="onDrop($event)">
+    <div class="file-upload-container">
       <input type="file"
              #fileInput
-             style="display: none"
              accept="image/*"
-             (change)="onFileSelected($event)">
+             (change)="handleFileInput($event)"
+             class="hidden-input">
 
       <div class="upload-content" (click)="fileInput.click()">
         <mat-icon>cloud_upload</mat-icon>
-        <p>Drag and drop an image here or click to select</p>
-        <p *ngIf="selectedFile">Selected: {{selectedFile.name}}</p>
+        <p>Click to select an image from assets/images</p>
+        <p *ngIf="newHotel.photos">Selected: {{newHotel.photos}}</p>
       </div>
     </div>
 
