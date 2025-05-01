@@ -202,8 +202,13 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
                 return res.status(404).json({ message: 'Hotel not found' });
             }
             
-            console.log('Found hotel:', hotel);
-            res.json(hotel);
+            const hotelWithImagePath = {
+                ...hotel.toObject(),
+                photos: hotel.photos ? `/assets/images/${hotel.photos}` : null
+            };
+
+            console.log('Found hotel:', hotelWithImagePath);
+            res.json(hotelWithImagePath);
         } catch (error) {
             console.error('Error fetching hotel:', error);
             res.status(500).json({ message: 'Error fetching hotel details' });
@@ -214,8 +219,13 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
         console.log('GET /hotels endpoint hit');
         try {
             const hotels = await Hotel.find().select('-__v');
-            console.log('Found hotels:', hotels);
-            res.json(hotels);
+
+            const hotelsWithImagePaths = hotels.map(hotel => ({
+                ...hotel.toObject(),
+                photos: hotel.photos ? `/assets/images/${hotel.photos}` : null
+            }));
+            console.log('Found hotels:', hotelsWithImagePaths);
+            res.json(hotelsWithImagePaths);
         } catch (error) {
             console.error('Error fetching hotels:', error);
             res.status(500).json({ message: 'Error fetching hotels' });
