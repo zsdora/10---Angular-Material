@@ -332,6 +332,25 @@ const configureRoutes = (passport, router) => {
             });
         }
     }));
+    router.delete('/rooms/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const roomId = req.params.id;
+            console.log('Attempting to delete room:', roomId);
+            const deletedRoom = yield Room_1.Room.findByIdAndDelete(roomId);
+            if (!deletedRoom) {
+                return res.status(404).json({ message: 'Room not found' });
+            }
+            console.log('Room deleted successfully:', deletedRoom);
+            res.status(200).json({ message: 'Room deleted successfully' });
+        }
+        catch (error) {
+            console.error('Error deleting room:', error);
+            res.status(500).json({
+                message: 'Error deleting room',
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    }));
     // ======================
     // Foglalás útvonalak
     // ======================

@@ -116,14 +116,18 @@ export class RoomManagementComponent implements OnInit {
   }
 
   deleteRoom(roomId: string) {
-    this.roomService.deleteRoom(roomId).subscribe({
-      next: () => {
-        this.loadRooms();
-      },
-      error: (error) => {
-        console.error('Error deleting room:', error);
-      }
-    });
+    if (window.confirm('Are you sure you want to delete this room?')) {
+      this.roomService.deleteRoom(roomId).subscribe({
+        next: () => {
+          this.snackBar.open('Room deleted successfully', 'Close', { duration: 3000 });
+          this.loadRooms();
+        },
+        error: (error) => {
+          console.error('Error deleting room:', error);
+          this.snackBar.open('Error deleting room', 'Close', { duration: 3000 });
+        }
+      });
+    }
   }
 
   resetForm(form: NgForm) {

@@ -367,6 +367,28 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
         }
     });
 
+    router.delete('/rooms/:id', async (req: Request, res: Response) => {
+        try {
+            const roomId = req.params.id;
+            console.log('Attempting to delete room:', roomId);
+
+            const deletedRoom = await Room.findByIdAndDelete(roomId);
+            
+            if (!deletedRoom) {
+                return res.status(404).json({ message: 'Room not found' });
+            }
+
+            console.log('Room deleted successfully:', deletedRoom);
+            res.status(200).json({ message: 'Room deleted successfully' });
+        } catch (error) {
+            console.error('Error deleting room:', error);
+            res.status(500).json({ 
+                message: 'Error deleting room',
+                error: error instanceof Error ? error.message : 'Unknown error' 
+            });
+        }
+    });
+
 
     // ======================
     // Foglalás útvonalak
