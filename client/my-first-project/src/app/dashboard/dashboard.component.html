@@ -1,50 +1,93 @@
-<div class="dashboard-main">
-  <div class="dashboard-header">
-   <!-- <h1>Welcome, {{ user?.name }}</h1>-->
-    <span *ngIf="user?.role === 'admin'" class="role-badge">Admin</span>
-    <span *ngIf="user?.role === 'user'" class="role-badge">User</span>
-  </div>
+<app-header></app-header>
+<div class="dashboard-container">
+  <!-- Welcome Section -->
+  <mat-card class="welcome-card">
+    <mat-card-header>
+      <mat-card-title>Welcome to the Dashboard</mat-card-title>
+      <mat-card-subtitle *ngIf="user?.role">
+        You are logged in as: <span class="role-badge">{{user?.role | titlecase}}</span>
+      </mat-card-subtitle>
+    </mat-card-header>
+  </mat-card>
 
+  <!-- Admin Statistics -->
   <div class="dashboard-stats" *ngIf="user?.role === 'admin'">
-    <div class="stat-card">
-     <!-- <h2>{{ stats.hotels }}</h2>-->
-      <p>Hotels</p>
-    </div>
-    <div class="stat-card">
-     <!-- <h2>{{ stats.bookings }}</h2>-->
-      <p>Total Bookings</p>
-    </div>
-    <div class="stat-card">
-     <!-- <h2>{{ stats.users }}</h2>-->
-      <p>Users</p>
-    </div>
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <mat-icon>hotel</mat-icon>
+        <h3>Hotels</h3>
+        <p class="stat-number">{{stats?.hotels || 0}}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <mat-icon>book_online</mat-icon>
+        <h3>Total Bookings</h3>
+        <p class="stat-number">{{stats?.bookings || 0}}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <mat-icon>people</mat-icon>
+        <h3>Users</h3>
+        <p class="stat-number">{{stats?.users || 0}}</p>
+      </mat-card-content>
+    </mat-card>
   </div>
 
+  <!-- User Statistics -->
   <div class="dashboard-stats" *ngIf="user?.role === 'user'">
-    <div class="stat-card">
-     <!-- <h2>{{ stats.myBookings }}</h2>-->
-      <p>My Active Bookings</p>
-    </div>
-    <div class="stat-card">
-     <!-- <h2>{{ stats.nextBooking | date:'mediumDate' }}</h2>-->
-      <p>Next Booking</p>
-    </div>
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <mat-icon>bookmark</mat-icon>
+        <h3>Active Bookings</h3>
+        <p class="stat-number">{{stats?.myBookings || 0}}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <mat-icon>event</mat-icon>
+        <h3>Next Booking</h3>
+        <p class="stat-date">{{stats?.nextBooking ? (stats.nextBooking | date:'mediumDate') : 'No upcoming bookings'}}</p>
+      </mat-card-content>
+    </mat-card>
   </div>
 
-  <div class="dashboard-actions">
-    <!-- Admin funkciók -->
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <!-- Admin Actions -->
     <ng-container *ngIf="user?.role === 'admin'">
-      <button routerLink="/hotels">Manage Hotels</button>
-      <button routerLink="/bookings">View All Bookings</button>
-      <button routerLink="/users">Manage Users</button>
-      <button routerLink="/hotels/add">Add New Hotel</button>
+      <button mat-raised-button color="primary" routerLink="/hotels">
+        <mat-icon>business</mat-icon>
+        Manage Hotels
+      </button>
+      <button mat-raised-button color="accent" routerLink="/all-bookings">
+        <mat-icon>book_online</mat-icon>
+        View All Bookings
+      </button>
+      <button mat-raised-button color="primary" routerLink="/room-management">
+        <mat-icon>bed</mat-icon>
+        Manage Rooms
+      </button>
     </ng-container>
 
-    <!-- User funkciók -->
+    <!-- User Actions -->
     <ng-container *ngIf="user?.role === 'user'">
-      <button routerLink="/hotels">Browse Hotels</button>
-      <button routerLink="/bookings">My Bookings</button>
-      <button routerLink="/profile">Edit Profile</button>
+      <button mat-raised-button color="primary" routerLink="/hotels">
+        <mat-icon>search</mat-icon>
+        Browse Hotels
+      </button>
+      <button mat-raised-button color="accent" routerLink="/bookings">
+        <mat-icon>book</mat-icon>
+        My Bookings
+      </button>
+      <button mat-raised-button color="primary" routerLink="/profile">
+        <mat-icon>person</mat-icon>
+        Edit Profile
+      </button>
     </ng-container>
   </div>
 </div>
