@@ -71,3 +71,32 @@ mat-card-actions {
     z-index: 0;
   }
 }
+
+
+.booking-section {
+  margin-top: 20px;
+  padding: 20px;
+
+  .date-selection {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .available-rooms {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+
+    .room-card {
+      mat-card-content {
+        margin: 16px 0;
+      }
+
+      mat-card-actions {
+        padding: 16px;
+      }
+    }
+  }
+}

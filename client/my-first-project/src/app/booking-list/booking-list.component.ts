@@ -18,7 +18,7 @@ interface Booking {
   };
   room_id: {
     _id: string;
-    room_type: number;
+    room_type: string;
     price: number;
   };
   check_in: Date;
@@ -75,15 +75,22 @@ export class BookingListComponent implements OnInit {
 
   cancelBooking(bookingId: string): void {
     if (confirm('Are you sure you want to cancel this booking?')) {
-      this.bookingService.cancelBooking(bookingId).subscribe({
-        next: () => {
-          console.log('Booking cancelled successfully');
-          this.loadBookings(); // Reload the list after cancellation
-        },
-        error: (error) => {
-          console.error('Error cancelling booking:', error);
-        }
-      });
+        this.bookingService.cancelBooking(bookingId).subscribe({
+            next: (updatedBooking) => {
+                console.log('Booking cancelled:', updatedBooking);
+                // Update the booking in the list immediately
+                this.bookings = this.bookings.map(booking =>
+                    booking._id === bookingId
+                        ? { ...booking, status: 'cancelled' }
+                        : booking
+                );
+                alert('Booking cancelled successfully');
+            },
+            error: (error) => {
+                console.error('Error cancelling booking:', error);
+                alert(error.error?.message || 'Failed to cancel booking. Please try again.');
+            }
+        });
     }
-  }
+}
 }

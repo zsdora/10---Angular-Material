@@ -42,4 +42,14 @@ export class RoomService {
       withCredentials: true
     });
   }
+
+  getAvailableRooms(hotelId: string, checkIn: Date, checkOut: Date): Observable<Room[]> {
+    return this.http.get<Room[]>(`${this.apiUrl}/app/hotels/${hotelId}/rooms/available`, {
+      params: {
+        checkIn: checkIn.toISOString(),
+        checkOut: checkOut.toISOString()
+      },
+      withCredentials: true
+    });
+  }
 }

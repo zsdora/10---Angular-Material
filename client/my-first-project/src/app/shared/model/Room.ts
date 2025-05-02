@@ -5,6 +5,6 @@ export interface Room {
   amenities: string[];
   description?: string;
   photos: string[];
-  room_type: number;
+  room_type: string;
   status: string;
 }

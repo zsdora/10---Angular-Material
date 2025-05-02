@@ -285,7 +285,7 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
     // ======================
     router.get('/hotels/:hotelId/rooms', async (req: Request, res: Response) => {
         try {
-            const rooms = await Room.find({ hotel_id: req.params.hotelId });
+            const rooms = await Room.find({ hotel_id: req.params.hotelId }) as Array<{ _id: string }>;
             res.status(200).send(rooms);
         } catch (error) {
             res.status(500).send('Szobák betöltése sikertelen');
@@ -305,6 +305,49 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
             res.status(400).send('Érvénytelen szobaadatok');
         }
     });
+
+    router.get('/hotels/:hotelId/rooms/available', async (req: Request, res: Response) => {
+    try {
+        const hotelId = req.params.hotelId;
+        const checkIn = new Date(req.query.checkIn as string);
+        const checkOut = new Date(req.query.checkOut as string);
+
+        // First, get all rooms for this hotel
+        const rooms = await Room.find({ hotel_id: hotelId });
+
+        // Then, get all bookings that overlap with the requested dates
+        const bookings = await Booking.find({
+            'hotel_id._id': hotelId,
+            status: { $ne: 'cancelled' }, // Exclude cancelled bookings
+            $or: [
+                {
+                    check_in: { $lte: checkOut },
+                    check_out: { $gte: checkIn }
+                }
+            ]
+        });
+
+        // Get room IDs that are booked for these dates, with null check
+        const bookedRoomIds = bookings
+            .filter(booking => booking.room_id && booking.room_id._id) // Filter out null/undefined
+            .map(booking => booking.room_id?._id?.toString())
+            .filter((roomId): roomId is string => !!roomId);
+
+        // Filter out booked rooms
+        const availableRooms = rooms.filter(room => 
+            !bookedRoomIds.includes((room._id as string).toString()) // Use _id instead of id
+        );
+
+        console.log(`Found ${availableRooms.length} available rooms`);
+        res.json(availableRooms);
+    } catch (error) {
+        console.error('Error fetching available rooms:', error);
+        res.status(500).json({ 
+            message: 'Error fetching available rooms',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
 
     router.get('/rooms', isAuthenticated, async (req: Request, res: Response) => {
         console.log('GET /rooms route hit');
@@ -445,27 +488,50 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
 
     router.post('/bookings', isAuthenticated, async (req: Request, res: Response) => {
         try {
-            // Validate required fields
-            const { hotel_id, room_id, check_in, check_out } = req.body;
-            if (!hotel_id || !room_id || !check_in || !check_out) {
-                return res.status(400).json({ 
-                    message: 'Missing required fields' 
+            console.log('Received booking request:', req.body);
+    
+            // 1 - Validate required fields
+            if (!req.body.hotel_id || !req.body.room_id || !req.body.check_in || !req.body.check_out || !req.body.total_price) {
+                return res.status(400).json({
+                    message: 'Missing required fields',
+                    required: ['hotel_id', 'room_id', 'check_in', 'check_out', 'total_price']
                 });
             }
     
+            // 2 - Check if user already has an active booking
+            const existingBooking = await Booking.findOne({
+                user_id: (req.user as any)._id,
+                status: { $in: ['pending', 'confirmed'] }
+            });
+    
+            if (existingBooking) {
+                return res.status(400).json({
+                    message: 'You already have an active booking. Please cancel your existing booking before making a new one.'
+                });
+            }
+    
+            // 3 - Create and save new booking
             const booking = new Booking({
                 ...req.body,
                 user_id: (req.user as any)._id,
-                status: 'confirmed'
+                status: req.body.status || 'confirmed'  // Use status from request or default to 'confirmed'
             });
     
             const savedBooking = await booking.save();
-            res.status(201).json(savedBooking);
+            console.log('Created booking:', savedBooking);
+            
+            // Return the populated booking data
+            const populatedBooking = await Booking.findById(savedBooking._id)
+                .populate('hotel_id', 'name city')
+                .populate('room_id', 'room_type price');
+    
+            res.status(201).json(populatedBooking);
+    
         } catch (error: any) {
             console.error('Error creating booking:', error);
-            res.status(400).json({ 
-                message: 'Invalid booking data',
-                error: error.message 
+            res.status(400).json({
+                message: 'Error creating booking',
+                error: error.message
             });
         }
     });
@@ -512,15 +578,15 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
                     select: 'room_type price'
                 });
     
-            // Keep the original structure but ensure populated fields are handled safely
+            // Transform bookings with null checks
             const transformedBookings = allBookings.map(booking => ({
                 _id: booking._id,
-                user_id: booking.user_id,
-                hotel_id: booking.hotel_id,
-                room_id: booking.room_id,
+                user_id: booking.user_id || null,
+                hotel_id: booking.hotel_id || null,
+                room_id: booking.room_id || null,
                 check_in: booking.check_in,
                 check_out: booking.check_out,
-                price: booking.price,
+                total_price: booking.total_price, // Use total_price instead of price
                 status: booking.status
             }));
     

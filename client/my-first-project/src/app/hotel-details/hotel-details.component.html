@@ -35,12 +35,50 @@
           </div>
         </mat-card-content>
 
+        <div class="booking-section">
+          <h3>Book a room!</h3>
+          <div class="date-selection">
+            <mat-form-field>
+              <mat-label>Check-in Date</mat-label>
+              <input matInput [matDatepicker]="checkInPicker" [min]="minDate" [(ngModel)]="checkInDate">
+              <mat-datepicker-toggle matSuffix [for]="checkInPicker"></mat-datepicker-toggle>
+              <mat-datepicker #checkInPicker></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Check-out Date</mat-label>
+              <input matInput [matDatepicker]="checkOutPicker" [min]="minCheckOutDate" [(ngModel)]="checkOutDate">
+              <mat-datepicker-toggle matSuffix [for]="checkOutPicker"></mat-datepicker-toggle>
+              <mat-datepicker #checkOutPicker></mat-datepicker>
+            </mat-form-field>
+
+            <button mat-raised-button color="primary" (click)="searchAvailableRooms()">
+              Search Rooms
+            </button>
+          </div>
+
+          <div class="available-rooms" *ngIf="availableRooms.length">
+            <h4>Available Rooms</h4>
+            <mat-card *ngFor="let room of availableRooms" class="room-card">
+              <mat-card-header>
+                <mat-card-title>{{room.room_type}}</mat-card-title>
+                <mat-card-subtitle>{{room.price | currency}} per night</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <p>Total for {{numberOfNights}} nights: {{room.price * numberOfNights | currency}}</p>
+              </mat-card-content>
+              <mat-card-actions>
+                <button mat-raised-button color="accent" (click)="bookRoom(room)">
+                  Book Now
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+        </div>
+
         <mat-card-actions>
           <button mat-button color="primary" (click)="goBack()">
             <mat-icon>arrow_back</mat-icon> Back
-          </button>
-          <button mat-raised-button color="accent" (click)="bookHotel()">
-            <mat-icon>book</mat-icon> Book Now
           </button>
         </mat-card-actions>
       </mat-card>

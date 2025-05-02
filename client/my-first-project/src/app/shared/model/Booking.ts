@@ -8,10 +8,11 @@ export interface Booking {
   };
   room_id: {
     _id: string;
-    room_type: number;
+    room_type: string;
     price: number;
-  };
+  }
   check_in: Date;
   check_out: Date;
-  status: string;
+  status: 'confirmed' | 'cancelled';
+  total_price: number;
 }

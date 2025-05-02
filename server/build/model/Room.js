@@ -14,7 +14,7 @@ const RoomSchema = new mongoose_1.default.Schema({
     room_type: {
         type: String, // Changed from Number to String
         required: true,
-        enum: ['Single', 'Double', 'Suite', 'Deluxe'] // Added room type options
+        enum: ['Single', 'Double']
     },
     price: {
         type: Number,

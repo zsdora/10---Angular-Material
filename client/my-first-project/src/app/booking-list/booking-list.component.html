@@ -29,7 +29,7 @@
       <ng-container matColumnDef="status">
         <th mat-header-cell *matHeaderCellDef>Status</th>
         <td mat-cell *matCellDef="let booking">
-          <mat-chip [color]="booking.status === 'aktív' ? 'primary' : 'warn'">
+          <mat-chip [color]="booking.status === 'confirmed' ? 'primary' : 'warn'">
             {{booking.status}}
           </mat-chip>
         </td>
@@ -41,7 +41,7 @@
           <button mat-button
                   color="warn"
                   (click)="cancelBooking(booking._id)"
-                  [disabled]="booking.status !== 'aktív'">
+                  [disabled]="booking.status !== 'confirmed'">
             Cancel
           </button>
         </td>
