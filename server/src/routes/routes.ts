@@ -204,9 +204,9 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
             
             const hotelWithImagePath = {
                 ...hotel.toObject(),
-                photos: hotel.photos ? `/assets/images/${hotel.photos}` : null
+                photos: hotel.photos || null  // Remove the /assets/images/ prefix
             };
-
+    
             console.log('Found hotel:', hotelWithImagePath);
             res.json(hotelWithImagePath);
         } catch (error) {
@@ -222,7 +222,7 @@ export const configureRoutes = (passport: PassportStatic, router: Router): Route
 
             const hotelsWithImagePaths = hotels.map(hotel => ({
                 ...hotel.toObject(),
-                photos: hotel.photos ? `/assets/images/${hotel.photos}` : null
+                photos: hotel.photos || null
             }));
             console.log('Found hotels:', hotelsWithImagePaths);
             res.json(hotelsWithImagePaths);

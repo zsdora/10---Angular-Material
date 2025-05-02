@@ -193,7 +193,8 @@ const configureRoutes = (passport, router) => {
             if (!hotel) {
                 return res.status(404).json({ message: 'Hotel not found' });
             }
-            const hotelWithImagePath = Object.assign(Object.assign({}, hotel.toObject()), { photos: hotel.photos ? `/assets/images/${hotel.photos}` : null });
+            const hotelWithImagePath = Object.assign(Object.assign({}, hotel.toObject()), { photos: hotel.photos || null // Remove the /assets/images/ prefix
+             });
             console.log('Found hotel:', hotelWithImagePath);
             res.json(hotelWithImagePath);
         }
@@ -206,7 +207,7 @@ const configureRoutes = (passport, router) => {
         console.log('GET /hotels endpoint hit');
         try {
             const hotels = yield Hotel_1.Hotel.find().select('-__v');
-            const hotelsWithImagePaths = hotels.map(hotel => (Object.assign(Object.assign({}, hotel.toObject()), { photos: hotel.photos ? `/assets/images/${hotel.photos}` : null })));
+            const hotelsWithImagePaths = hotels.map(hotel => (Object.assign(Object.assign({}, hotel.toObject()), { photos: hotel.photos || null })));
             console.log('Found hotels:', hotelsWithImagePaths);
             res.json(hotelsWithImagePaths);
         }
