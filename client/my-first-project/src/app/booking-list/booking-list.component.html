@@ -1,6 +1,6 @@
 <app-header></app-header>
 <div class="content">
-  <h2>Your Bookings</h2>
+  <h2 class="bookings-title">Your Bookings</h2>
   <div class="bookings-container">
     <p *ngIf="bookings.length === 0">No bookings found.</p>
     <table mat-table [dataSource]="bookings" class="mat-elevation-z8" *ngIf="bookings.length > 0">

@@ -24,6 +24,15 @@ table {
   color: rgba(0, 0, 0, 0.87);
 }
 
+.bookings-title {
+  text-align: center;
+  color: white;
+  font-size: 2.5rem;
+  margin: 2rem 0;
+  padding: 1rem;
+  font-weight: bold;
+}
+
 .booking-container {
   min-height: 100vh;
   display: flex;

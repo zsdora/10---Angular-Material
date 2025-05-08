@@ -436,29 +436,33 @@ const configureRoutes = (passport, router) => {
     router.post('/bookings', isAuthenticated, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             console.log('Received booking request:', req.body);
-            // Validate required fields
+            // 1 - Validate required fields
             if (!req.body.hotel_id || !req.body.room_id || !req.body.check_in || !req.body.check_out || !req.body.total_price) {
                 return res.status(400).json({
                     message: 'Missing required fields',
                     required: ['hotel_id', 'room_id', 'check_in', 'check_out', 'total_price']
                 });
             }
-            // Check if user already has an active booking
+            // 2 - Check if user already has an active booking
             const existingBooking = yield Booking_1.Booking.findOne({
                 user_id: req.user._id,
                 status: { $in: ['pending', 'confirmed'] }
             });
-            // Create new booking
-            const booking = new Booking_1.Booking(Object.assign(Object.assign({}, req.body), { user_id: req.user._id, status: 'confirmed' }));
             if (existingBooking) {
                 return res.status(400).json({
                     message: 'You already have an active booking. Please cancel your existing booking before making a new one.'
                 });
             }
-            // Save booking
+            // 3 - Create and save new booking
+            const booking = new Booking_1.Booking(Object.assign(Object.assign({}, req.body), { user_id: req.user._id, status: req.body.status || 'confirmed' // Use status from request or default to 'confirmed'
+             }));
             const savedBooking = yield booking.save();
             console.log('Created booking:', savedBooking);
-            res.status(201).json(savedBooking);
+            // Return the populated booking data
+            const populatedBooking = yield Booking_1.Booking.findById(savedBooking._id)
+                .populate('hotel_id', 'name city')
+                .populate('room_id', 'room_type price');
+            res.status(201).json(populatedBooking);
         }
         catch (error) {
             console.error('Error creating booking:', error);
