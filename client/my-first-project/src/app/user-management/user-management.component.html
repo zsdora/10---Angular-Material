@@ -1,24 +1,3 @@
-<!-- <div class="table-container" *ngIf="users && users.length; else noUsersTemplate">
-    <table>
-        <thead>
-            <tr>
-                <th>Email</th>
-                <th>Name</th>
-                <th>Address</th>
-                <th>Nickname</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let user of users">
-                <td>{{user.email}}</td>
-                <td>{{user.name}}</td>
-                <td>{{user.address}}</td>
-                <td>{{user.nickname}}</td>
-            </tr>
-        </tbody>
-    </table>
-</div> -->
-
 <div class="table-container" *ngIf="users && users.length; else noUsersTemplate">
     <table mat-table [dataSource]="users">
         <ng-container matColumnDef="email">

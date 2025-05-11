@@ -34,6 +34,7 @@ interface DashboardStats {
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
+  // Store current user info
   user?: User;
   stats: DashboardStats = {};
 
@@ -47,6 +48,7 @@ export class DashboardComponent implements OnInit {
     this.loadUserInfo();
   }
 
+  // Load current user details
   private loadUserInfo(): void {
     this.authService.getCurrentUser().subscribe({
       next: (user) => {

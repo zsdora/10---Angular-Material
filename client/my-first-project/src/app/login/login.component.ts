@@ -19,6 +19,7 @@ export class LoginComponent {
 
   constructor(private router: Router, private authService: AuthService) { }
 
+  // Handle login form submission
   login() {
     if (!this.email || !this.password) {
       this.errorMessage = 'Please enter both email and password.';
@@ -28,6 +29,7 @@ export class LoginComponent {
     this.errorMessage = '';
     this.isLoading = true;
 
+    // Attempt login
     this.authService.login(this.email, this.password).subscribe({
       next: (response) => {
         console.log('Login successful:', response);
@@ -35,6 +37,7 @@ export class LoginComponent {
       },
       error: (error) => {
         console.error('Login error:', error);
+        // Handle different errors
         if (error.status === 400) {
           this.errorMessage = 'Invalid request format. Please try again.';
         } else if (error.status === 401) {

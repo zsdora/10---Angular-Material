@@ -11,9 +11,7 @@ import { MatDialogContent, MatDialogActions, MatDialogClose, MatDialogRef } from
 })
 export class DialogComponent {
 
-  constructor(private dialogRef: MatDialogRef<DialogComponent>) {
-
-  }
+  constructor(private dialogRef: MatDialogRef<DialogComponent>) {  }
 
   onNoClick() {
     this.dialogRef.close();

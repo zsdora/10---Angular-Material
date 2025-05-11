@@ -31,6 +31,7 @@ export class AllBookingsComponent implements OnInit {
     this.loadBookings();
   }
 
+  // Fetch all bookings
   loadBookings() {
     this.bookingService.getAllBookings().subscribe({
       next: (bookings) => {
@@ -43,10 +44,11 @@ export class AllBookingsComponent implements OnInit {
     });
   }
 
+  // Cancel booking and refresh the list
   cancelBooking(bookingId: string) {
     this.bookingService.cancelBooking(bookingId).subscribe({
       next: () => {
-        this.loadBookings(); // Reload the bookings after cancellation
+        this.loadBookings(); // Reload bookings after cancellation
       },
       error: (error) => {
         console.error('Error cancelling booking:', error);

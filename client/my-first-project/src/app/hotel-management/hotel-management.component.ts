@@ -12,7 +12,6 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { HeaderComponent } from '../shared/components/header/header/header.component';
 import { HotelService } from '../shared/services/hotel.service';
 import { Hotel } from '../shared/model/Hotel';
-import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-hotel-management',
@@ -33,11 +32,15 @@ import { switchMap } from 'rxjs';
   styleUrls: ['./hotel-management.component.scss']
 })
 export class HotelManagementComponent implements OnInit {
+  // Nav
   router: any;
+  // File handling
   selectedFile: File | null = null;
   dragOver: boolean = false;
+  // Table config
   displayedColumns: string[] = ['name', 'street', 'number', 'city', 'rating', 'amenities', 'actions'];
   dataSource = new MatTableDataSource<Hotel>([]);
+
   isNameTaken: boolean = false;
   editingHotel: Hotel | null = null;
   expandedHotelId: string | null = null;
@@ -59,6 +62,7 @@ export class HotelManagementComponent implements OnInit {
     this.loadHotels();
   }
 
+  // Fetch all hotels from service
   loadHotels() {
     this.hotelService.getAllHotels().subscribe({
       next: (hotels) => {
@@ -87,6 +91,7 @@ export class HotelManagementComponent implements OnInit {
     }
   }
 
+  // File drag and drop handlers
   onDragOver(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
@@ -110,6 +115,7 @@ export class HotelManagementComponent implements OnInit {
     }
   }
 
+  // File input handlers
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -143,6 +149,7 @@ export class HotelManagementComponent implements OnInit {
     }
   }
 
+  // Form validation and submission
   checkHotelName(name: string) {
     if (!name) return;
 
@@ -153,6 +160,7 @@ export class HotelManagementComponent implements OnInit {
     this.isNameTaken = !!existingHotel;
   }
 
+  // CRUD
   addHotel(): void {
     if (!this.newHotel.name || !this.newHotel.city || !this.newHotel.street || !this.newHotel.number || this.isNameTaken) {
       console.error('Required fields missing');
@@ -229,7 +237,6 @@ export class HotelManagementComponent implements OnInit {
     }
   }
 
-
   editHotel(hotel: Hotel): void {
     this.editingHotel = {
       ...hotel,
@@ -292,5 +299,4 @@ export class HotelManagementComponent implements OnInit {
       console.log('Selected file for edit:', file.name);
     }
   }
-
 }

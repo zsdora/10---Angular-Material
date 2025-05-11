@@ -5,8 +5,6 @@ import { AuthService } from '../shared/services/auth.service';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-// FormsModule, ReactiveFormsModule
-
 @Component({
   selector: 'app-signup',
   standalone: true,
@@ -38,6 +36,7 @@ export class SignupComponent implements OnInit {
     })
   }
 
+  // Ensure passwords match
   mustMatch(controlName: string, matchingControlName: string) {
     return (formGroup: FormGroup) => {
       const control = formGroup.controls[controlName];
@@ -79,6 +78,7 @@ export class SignupComponent implements OnInit {
   }
 }
 
+  // Navigation helper
   goBack() {
     this.location.back();
   }

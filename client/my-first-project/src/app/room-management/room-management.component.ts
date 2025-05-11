@@ -37,8 +37,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class RoomManagementComponent implements OnInit {
   displayedColumns: string[] = ['hotelName', 'roomType', 'price', 'status', 'actions'];
   dataSource = new MatTableDataSource<any>([]);
+
   hotels: any[] = [];
   editingRoom: Room | null = null;
+
   roomStatuses = [
     { value: 'Available', displayName: 'Available', color: 'green' },
     { value: 'Booked', displayName: 'Booked', color: 'red' },
@@ -60,6 +62,7 @@ export class RoomManagementComponent implements OnInit {
     this.loadHotels();
   }
 
+  // Load available hotels for room assignment
   loadHotels() {
     this.hotelService.getHotels().subscribe({
       next: (hotels) => {
@@ -72,9 +75,10 @@ export class RoomManagementComponent implements OnInit {
     });
   }
 
+  // Create new room
   addRoom(form: NgForm) {
     if (form.valid) {
-      console.log('Submitting room data:', this.newRoom); // Add debugging
+      console.log('Submitting room data:', this.newRoom);
       this.roomService.createRoom(this.newRoom).subscribe({
         next: (room) => {
           console.log('Room created successfully:', room);
@@ -94,11 +98,13 @@ export class RoomManagementComponent implements OnInit {
     }
   }
 
+  // Get color for room status display
   getRoomStatusColor(status: string): string {
     const statusObj = this.roomStatuses.find(s => s.value === status);
     return statusObj ? statusObj.color : 'black';
   }
 
+  // Load all rooms from service
   loadRooms() {
     this.roomService.getAllRooms().subscribe({
       next: (rooms) => {
@@ -111,6 +117,7 @@ export class RoomManagementComponent implements OnInit {
     });
   }
 
+  // Room editing
   editRoom(room: Room) {
     this.editingRoom = { ...room }; // Create a copy to avoid direct modification
     console.log('Editing room:', this.editingRoom);
@@ -120,6 +127,7 @@ export class RoomManagementComponent implements OnInit {
     this.editingRoom = null;
   }
 
+  // Save room changes
   saveRoomChanges() {
     if (this.editingRoom && this.validateRoom(this.editingRoom)) {
       this.roomService.updateRoom(this.editingRoom._id, this.editingRoom).subscribe({
@@ -139,10 +147,12 @@ export class RoomManagementComponent implements OnInit {
     }
   }
 
+  // Validate room data
   validateRoom(room: Room): boolean {
     return !!(room.hotel_id && room.room_type && room.price > 0);
   }
 
+   // Delete room
   deleteRoom(roomId: string) {
     if (window.confirm('Are you sure you want to delete this room?')) {
       this.roomService.deleteRoom(roomId).subscribe({

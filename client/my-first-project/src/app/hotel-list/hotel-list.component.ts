@@ -32,7 +32,7 @@ export class HotelListComponent implements OnInit {
   async ngOnInit() {
     this.hotelService.getAllHotels().subscribe(hotels => {
       this.hotels = hotels;
-      // Add debug logging
+      // Verify image paths for each hotel
       this.hotels?.forEach(async (hotel) => {
         if (hotel.photos) {
           const path = this.getImagePath(hotel.photos);
@@ -45,9 +45,9 @@ export class HotelListComponent implements OnInit {
         }
       });
     });
-
+    // Debug image loading
     console.log('Checking image path...');
-  fetch('/assets/images/1.jpg')
+    fetch('/assets/images/1.jpg')
     .then(response => {
       console.log('Image fetch response:', response.status, response.statusText);
     })
@@ -56,18 +56,14 @@ export class HotelListComponent implements OnInit {
     });
   }
 
+  // Navigate to hotel details page
   viewDetails(hotelId: string | undefined): void {
     if (hotelId) {
       this.router.navigate(['/hotels', hotelId]);
     }
   }
 
-  bookHotel(hotelId: string | undefined): void {
-    if (hotelId) {
-      this.router.navigate(['/booking', hotelId]);
-    }
-  }
-
+  // Convert photo data to image path
   getImagePath(photoData: any): string {
     if (!photoData) return '';
 

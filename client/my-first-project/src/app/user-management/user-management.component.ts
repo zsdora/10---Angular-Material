@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { User } from '../shared/model/User';
 import { UserService } from '../shared/services/user.service';
 import { AuthService } from '../shared/services/auth.service';
@@ -45,6 +45,7 @@ export class UserManagementComponent {
     });
   }
 
+  // Handle user logout
   logout() {
     this.authService.logout().subscribe({
       next: (data) => {
@@ -81,6 +82,7 @@ export class UserManagementComponent {
     })
   }
 
+  // Display notif
   openSnackBar(message: string, duration: number) {
     this.snackBar.open(message, undefined, { duration: duration });
   }

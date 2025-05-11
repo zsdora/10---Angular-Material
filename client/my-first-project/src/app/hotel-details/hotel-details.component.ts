@@ -63,16 +63,11 @@ export class HotelDetailsComponent implements OnInit {
       });
     }
   }
-
+  // Navigate back to hotel list
   goBack() {
     this.router.navigate(['/hotels']);
   }
-
-  bookHotel() {
-    // TODO: Implement booking functionality
-    console.log('Booking hotel:', this.hotel?._id);
-  }
-
+  // Handle hotel image load errors
   onImageError(event: Event): void {
     this.showFallbackIcon = true;
     const imgElement = event.target as HTMLImageElement;
@@ -80,7 +75,7 @@ export class HotelDetailsComponent implements OnInit {
       imgElement.style.display = 'none';
     }
   }
-
+  // Calculate minimum allowed check-out date
   get minCheckOutDate(): Date {
     if (this.checkInDate) {
       const date = new Date(this.checkInDate);
@@ -89,7 +84,7 @@ export class HotelDetailsComponent implements OnInit {
     }
     return this.minDate;
   }
-
+  // Search for available rooms based on selected dates
   searchAvailableRooms() {
     if (!this.checkInDate || !this.checkOutDate || !this.hotel?._id) {
       this.snackBar.open('Please select both check-in and check-out dates', 'Close', { duration: 3000 });
@@ -100,8 +95,9 @@ export class HotelDetailsComponent implements OnInit {
       (this.checkOutDate.getTime() - this.checkInDate.getTime()) / (1000 * 3600 * 24)
     );
 
+    // Fetch available rooms from service
     this.roomService.getAvailableRooms(
-      this.hotel._id, // Now safe because we checked for null above
+      this.hotel._id,
       this.checkInDate,
       this.checkOutDate
     ).subscribe({
@@ -115,6 +111,7 @@ export class HotelDetailsComponent implements OnInit {
     });
   }
 
+  // Create a new booking for selected room
   bookRoom(room: Room) {
     if (!this.hotel?._id || !this.checkInDate || !this.checkOutDate) {
         this.snackBar.open('Missing required booking information', 'Close', { duration: 3000 });
@@ -129,7 +126,7 @@ export class HotelDetailsComponent implements OnInit {
         },
         room_id: {
             _id: room._id,
-            room_type: room.room_type, // Now passing string directly
+            room_type: room.room_type,
             price: room.price
         },
         check_in: this.checkInDate,
@@ -140,6 +137,7 @@ export class HotelDetailsComponent implements OnInit {
 
     console.log('Sending booking request:', booking);
 
+    // Send booking request to server
     this.bookingService.createBooking(booking).subscribe({
         next: (response: Booking) => {
             console.log('Booking created:', response);
@@ -152,6 +150,5 @@ export class HotelDetailsComponent implements OnInit {
             this.snackBar.open(errorMessage, 'Close', { duration: 3000 });
         }
     });
-}
-
+  }
 }

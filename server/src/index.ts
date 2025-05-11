@@ -14,7 +14,7 @@ const app = express();
 const port = 5000;
 const dbUrl = 'mongodb+srv://dononono0:admin@hotelcluster.rrubk.mongodb.net/Hotel';
 
-// mongodb connection
+// Mongodb connection
 mongoose.connect(dbUrl).then((_) => {
     console.log('Successfully connected to MongoDB.');
 }).catch(error => {
@@ -22,7 +22,7 @@ mongoose.connect(dbUrl).then((_) => {
     return;
 });
 
-// Updated CORS configuration
+// CORS configuration
 app.use(cors({
     origin: 'http://localhost:4200',
     credentials: true,

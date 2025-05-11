@@ -50,8 +50,9 @@ export class BookingListComponent implements OnInit {
     this.loadBookings();
   }
 
+  // Fetch user bookings
   loadBookings(): void {
-    console.log('Attempting to load bookings...'); // Add debug log
+    console.log('Attempting to load bookings...'); // Add debug
     this.bookingService.getUserBookings().subscribe({
       next: (bookings) => {
         console.log('Received bookings:', bookings);
@@ -60,7 +61,6 @@ export class BookingListComponent implements OnInit {
       error: (error) => {
         if (error.status === 401) {
           console.error('Not authenticated - please log in');
-          // Redirect to login page or show login dialog
         } else {
           console.error('Error details:', {
             status: error.status,
@@ -73,12 +73,12 @@ export class BookingListComponent implements OnInit {
     });
   }
 
+  // Cancel booking by ID and update list
   cancelBooking(bookingId: string): void {
     if (confirm('Are you sure you want to cancel this booking?')) {
         this.bookingService.cancelBooking(bookingId).subscribe({
             next: (updatedBooking) => {
                 console.log('Booking cancelled:', updatedBooking);
-                // Update the booking in the list immediately
                 this.bookings = this.bookings.map(booking =>
                     booking._id === bookingId
                         ? { ...booking, status: 'cancelled' }
