@@ -133,6 +133,14 @@
   }
 }
 
+::ng-deep .mat-mdc-snack-bar-container {
+  &.success-snackbar {
+    --mdc-snackbar-container-color: #4CAF50;
+    --mat-mdc-snack-bar-button-color: white;
+    --mdc-snackbar-supporting-text-color: white;
+  }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px);}
   to   { opacity: 1; transform: translateY(0);}

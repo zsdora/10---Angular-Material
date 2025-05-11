@@ -28,7 +28,7 @@
 
     <ng-container matColumnDef="price">
       <th mat-header-cell *matHeaderCellDef> Price </th>
-      <td mat-cell *matCellDef="let booking"> {{booking.price | currency}} </td>
+      <td mat-cell *matCellDef="let booking"> {{booking.total_price}} </td>
     </ng-container>
 
     <ng-container matColumnDef="status">
@@ -39,7 +39,7 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef> Actions </th>
       <td mat-cell *matCellDef="let booking">
-        <button mat-icon-button color="warn" (click)="cancelBooking(booking._id)"
+        <button mat-icon-button color="warn" disabled
                 [disabled]="booking.status === 'cancelled'">
           <mat-icon>cancel</mat-icon>
         </button>

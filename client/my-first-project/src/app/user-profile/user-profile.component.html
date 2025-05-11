@@ -32,27 +32,6 @@
           <button type="submit" class="btn-save">Save Changes</button>
         </form>
       </mat-tab>
-
-      <mat-tab label="Change Password">
-        <form [formGroup]="passwordForm" class="profile-form" (ngSubmit)="changePassword()">
-          <div class="input-group">
-            <label>Current Password</label>
-            <input formControlName="currentPassword" type="password">
-          </div>
-
-          <div class="input-group">
-            <label>New Password</label>
-            <input formControlName="newPassword" type="password">
-          </div>
-
-          <div class="input-group">
-            <label>Confirm New Password</label>
-            <input formControlName="confirmPassword" type="password">
-          </div>
-
-          <button type="submit" class="btn-save">Change Password</button>
-        </form>
-      </mat-tab>
     </mat-tab-group>
   </div>
 </div>

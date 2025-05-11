@@ -59,21 +59,24 @@
 
           <div class="available-rooms" *ngIf="availableRooms.length">
             <h4>Available Rooms</h4>
-            <mat-card *ngFor="let room of availableRooms" class="room-card">
-              <mat-card-header>
-                <mat-card-title>{{room.room_type}}</mat-card-title>
-                <mat-card-subtitle>{{room.price | currency}} per night</mat-card-subtitle>
-              </mat-card-header>
-              <mat-card-content>
-                <p>Total for {{numberOfNights}} nights: {{room.price * numberOfNights | currency}}</p>
-              </mat-card-content>
-              <mat-card-actions>
-                <button mat-raised-button color="accent" (click)="bookRoom(room)">
-                  Book Now
-                </button>
-              </mat-card-actions>
-            </mat-card>
+            <div class="rooms-grid">
+              <mat-card *ngFor="let room of availableRooms" class="room-card">
+                <mat-card-header>
+                  <mat-card-title>{{room.room_type}}</mat-card-title>
+                  <mat-card-subtitle>{{room.price | currency}} per night</mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                  <p>Total for {{numberOfNights}} nights: {{room.price * numberOfNights | currency}}</p>
+                </mat-card-content>
+                <mat-card-actions>
+                  <button mat-raised-button color="accent" (click)="bookRoom(room)">
+                    Book Now
+                  </button>
+                </mat-card-actions>
+              </mat-card>
+            </div>
           </div>
+
         </div>
 
         <mat-card-actions>
