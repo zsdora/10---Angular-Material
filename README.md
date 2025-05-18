@@ -1,3 +1,5 @@
+Projekthez tartozó bemutató videó: https://drive.google.com/drive/folders/1tc-a5EKqi1ZG742uzyNTqRls7UfNm2Q1?usp=sharing
+
 A projekt futtatásához szükséges 22.14.0-ás Node verzió.
 
 -A projekt letöltése és kicsomagolása után nyissuk meg a projektet Visual Studio Code-ban.
