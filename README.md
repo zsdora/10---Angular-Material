@@ -1,6 +1,7 @@
 A projekt futtatásához szükséges 22.14.0-ás Node verzió.
 
--A projekt letöltése és kicsomagolása után nyissuk meg a projekted Visual Studio Code-ban.
+-A projekt letöltése és kicsomagolása után nyissuk meg a projektet Visual Studio Code-ban.
+
 -Nyissunk egy git bash terminált és írjuk be az alábbi sorokat:
 cd 10---Angular-Material-main/server  utána npm install
 
